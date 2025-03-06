@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileToolsHub - Your All-in-One File Conversion Hub</title>
+    <meta name="description" content="FileToolsHub: Convert, edit, and optimize your files online for free. Image compressor, image converter, PDF converter, PDF editor, Word converter, Excel converter, PPT converter and more.">
+    <meta name="keywords" content="file converter, image compressor, image converter, pdf converter, pdf editor, word converter, excel converter, ppt converter, online file tools, free file conversion">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" alt="FileToolsHub Favicon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* (Same CSS styles as before - no changes needed in CSS) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Header Styles */
+        header {
+            background: #2c3e50;
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem; /* Reduced gap for smaller header */
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem; /* Slightly smaller font for nav links */
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            padding: 6rem 5% 3rem; /* Reduced top and bottom padding */
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2rem; /* Slightly smaller hero heading */
+            margin-bottom: 0.8rem;
+        }
+
+        .hero p {
+            font-size: 1rem; /* Slightly smaller hero paragraph */
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Slightly smaller tool cards */
+            gap: 1.5rem;
+            padding: 3rem 5%; /* Reduced padding */
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 8px; /* Slightly less rounded corners */
+            padding: 1.5rem; /* Reduced padding */
+            text-align: center;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1); /* Slightly smaller shadow */
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px); /* Reduced hover effect */
+        }
+
+        .tool-icon {
+            font-size: 2rem; /* Smaller icons */
+            color: #3498db;
+            margin-bottom: 0.8rem;
+        }
+
+        .tool-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.6rem;
+            font-size: 1.1rem; /* Smaller heading in tool card */
+        }
+
+        .tool-card p {
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1.5rem 5%; /* Reduced padding */
+            margin-top: 3rem; /* Reduced margin */
+            font-size: 0.8rem; /* Smaller font in footer */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero p {
+                font-size: 0.9rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 5rem 5% 2rem;
+            }
+
+            .tool-card {
+                padding: 1rem;
+            }
+        }
+
+        /* Utility Classes */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem; /* Smaller button padding */
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px; /* Slightly less rounded button */
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #c0392b;
+        }
+
+        /* Ad Styles */
+        .ad-banner-top, .ad-banner-bottom, .ad-sidebar {
+            margin-bottom: 1.5rem;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px dashed #ccc;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .ad-banner-top {
+            margin-top: 7rem; /* Adjust margin-top to be below fixed header */
+            margin-left: 5%;
+            margin-right: 5%;
+        }
+
+        .ad-banner-bottom {
+             margin-left: 5%;
+            margin-right: 5%;
+        }
+
+        .ad-sidebar {
+            /* Example for sidebar ad - you might need to adjust placement in a real layout */
+            float: right;
+            width: 30%;
+            margin-top: 7rem; /* Align with top content */
+            margin-right: 5%;
+        }
+
+        /* Clearfix for floating sidebar if needed */
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">FileToolsHub</div>
+            <div class="nav-links">
+                </div>
+        </nav>
+    </header>
+
+<main class="clearfix">
+    <section class="ad-banner-top">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+             data-ad-slot="yyyyyyyyyyyyyy"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+        </section>
+
+    <section class="hero">
+        <h1>Your All-in-One File Conversion Hub</h1>
+        <p>Convert, edit, and optimize images and PDFs with our powerful online tools</p>
+    </section>
+
+    <section class="tools-grid">
+        <div class="tool-card">
+            <i class="fas fa-image tool-icon"></i>
+            <h3><a href="Tools/img-compress.html">Image Compressor</a></h3>
+            <p>Reduce image file size without losing quality</p>
+        </div>
+
+        <div class="tool-card">
+            <i class="fas fa-image tool-icon"></i>
+            <h3>Image Converter</h3>
+            <p>Convert images to various formats </p>
+        </div>
+
+        <div class="tool-card">
+            <i class="fas fa-file-pdf tool-icon"></i>
+            <h3>PDF Converter</h3>
+            <p>Convert PDFs to various formats </p>
+        </div>
+        <div class="tool-card">
+            <i class="fas fa-file-pdf tool-icon"></i>
+            <h3>PDF Editor</h3>
+            <p>Edit and modify your PDF documents online</p>
+        </div>
+
+        <div class="tool-card">
+            <i class="fas fa-file-word tool-icon"></i>
+            <h3>Word Converter</h3>
+            <p>Convert Word documents to various formats</p>
+        </div>
+
+        <div class="tool-card">
+            <i class="fas fa-file-excel tool-icon"></i>
+            <h3>Excel Converter</h3>
+            <p>Convert Excel spreadsheets to various formats</p>
+        </div>
+
+        <div class="tool-card">
+            <i class="fas fa-file-powerpoint tool-icon"></i>
+            <h3>PPT Converter</h3>
+            <p>Convert PowerPoint presentations to various formats</p>
+        </div>
+         <section class="ad-sidebar">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+                 data-ad-slot="zzzzzzzzzzzz"
+                 data-ad-format="auto"
+                 data-ad-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            </section>
+    </section>
+
+    <section class="ad-banner-bottom">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+             data-ad-slot="wwwwwwwwwwww"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+        </section>
+</main>
+
+    <footer>
+        <p>&copy; 2023 FileToolsHub. All rights reserved.</p>
+    </footer>
+</body>
+</html>
