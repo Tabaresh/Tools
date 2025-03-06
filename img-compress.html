@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Compressor Pro - Optimize & Reduce Image Size</title>
-    <meta name="description" content="Free Professionally compress and optimize your images online. Reduce image size efficiently without compromising quality. Fast, reliable, and SEO-focused image compression.">
+    <title>Pro Image Compressor - Optimize & Reduce Image Size</title>
+    <meta name="description" content="Professionally compress and optimize your images online. Reduce image size efficiently without compromising quality. Fast, reliable, and SEO-focused image compression.">
     <meta name="keywords" content="professional image compressor, expert image optimization, reduce image size professionally, compress image pro, online image optimizer, efficient image compression, SEO image optimization, image compression tool">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_CLIENT_ID" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -567,15 +567,28 @@
             }
         }
     </style>
-
 </head>
 <body>
     <header>
-        <h1>Image Compressor Pro</h1>
-        <p>Fast & Efficient Image Compression – Optimize Your Photos Online</p>
+        <h1>Pro Image Compressor</h1>
+        <p>Efficiently Optimize Your Images Online</p>
     </header>
 
     <main>
+        <div class="ad-space">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_CLIENT_ID"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-YOUR_CLIENT_ID"
+                 data-ad-slot="YOUR_TOP_AD_SLOT_ID"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+             <p>Advertisement</p>
+        </div>
+
         <section id="tool-container">
             <div class="upload-area">
                 <input type="file" id="imageUpload" accept="image/*">
@@ -606,6 +619,48 @@
             </div>
         </section>
 
+        <div class="ad-space">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_CLIENT_ID"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-YOUR_CLIENT_ID"
+                 data-ad-slot="YOUR_BOTTOM_AD_SLOT_ID"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+             <p>Advertisement</p>
+        </div>
+
+        <section id="seo-content">
+            <h2>Optimize Your Images for Better Performance</h2>
+            <p>Improve your website's loading speed and SEO by compressing your images with our free online tool. Reduce file size without losing quality, making your website faster and more user-friendly.</p>
+
+            <h3>Why Optimize Images?</h3>
+            <ul>
+                <li><strong>Faster Loading Times:</strong> Compressed images load quicker, improving user experience and reducing bounce rates.</li>
+                <li><strong>Improved SEO:</strong> Search engines favor fast-loading websites. Image optimization can boost your search engine rankings.</li>
+                <li><strong>Save Bandwidth:</strong> Smaller images consume less bandwidth, saving on hosting costs and improving website efficiency.</li>
+                <li><strong>Better Mobile Experience:</strong> Optimized images ensure a smooth and fast Browse experience for mobile users.</li>
+            </ul>
+
+            <h3>How to Use Pro Image Compressor</h3>
+            <ol>
+                <li><strong>Upload Your Image:</strong> Drag and drop your image into the designated area or click "Select Image".</li>
+                <li><strong>Adjust Compression:</strong> Use the slider to select your desired compression level. Observe the estimated size to balance quality and file size.</li>
+                <li><strong>Compress Image:</strong> Click the "Compress Image" button to optimize your image.</li>
+                <li><strong>Download:</strong> Once compressed, click the "Download Compressed Image" button to save your optimized image.</li>
+            </ol>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Free Online Tool:</strong> No subscriptions or software downloads required.</li>
+                <li><strong>User-Friendly Interface:</strong> Simple and intuitive design for easy image compression.</li>
+                <li><strong>Quality Compression:</strong> Advanced compression algorithms to reduce file size while maintaining optimal image quality.</li>
+                <li><strong>Responsive Design:</strong> Access and use the tool seamlessly on any device.</li>
+            </ul>
+        </section>
     </main>
 
     <footer>
@@ -698,6 +753,21 @@
                 closeButton.classList.remove('visible'); // Hide close button
                 previewContainer.querySelector('p').style.display = 'block'; // Show placeholder text
                 compressionLine.classList.remove('active'); // Stop animation line if active
+
+                // **File Input Reset Logic Added Here:**
+                const uploadArea = document.querySelector('.upload-area'); // Get the upload area div
+                const oldFileInput = document.getElementById('imageUpload'); // Get the old file input
+                const newFileInput = document.createElement('input'); // Create a new file input
+                newFileInput.type = 'file'; // Set type to file
+                newFileInput.id = 'imageUpload'; // Set id
+                newFileInput.name = 'imageUpload'; // Set name (optional, but good practice)
+                newFileInput.accept = 'image/*'; // Set accept attribute
+                newFileInput.style.display = 'none'; // Hide the new file input
+                newFileInput.addEventListener('change', (e) => { // Re-attach event listener to the new input
+                    const file = e.target.files[0];
+                    handleImageFile(file);
+                });
+                uploadArea.replaceChild(newFileInput, oldFileInput); // Replace the old input with the new one in the DOM
             }
 
 
@@ -811,37 +881,6 @@
                     downloadButton.disabled = false; // Enable download button after compression
                 }
             });
-
-            // Function to reset the image preview area
-            function resetImagePreview() {
-                imageCanvas.width = 0; // Clear canvas width
-                imageCanvas.height = 0; // Clear canvas height
-                originalImageData = null; // Reset original image data
-                compressedImageData = null; // Reset compressed image data
-                compressButton.disabled = true; // Disable compress button
-                downloadButton.disabled = true; // Disable download button
-                originalSizeDisplay.textContent = '0 KB'; // Reset original size display
-                compressedSizeDisplay.innerHTML = ' <span id="liveCompressedSize">0 KB</span> (Estimate)'; // Reset compressed size display with estimate text - using innerHTML to reset span
-                liveCompressedSizeDisplay.textContent = '0 KB'; // Ensure estimate size is also reset
-                closeButton.classList.remove('visible'); // Hide close button
-                previewContainer.querySelector('p').style.display = 'block'; // Show placeholder text
-                compressionLine.classList.remove('active'); // Stop animation line if active
-
-                // **File Input Reset Logic Added Here:**
-                const uploadArea = document.querySelector('.upload-area'); // Get the upload area div
-                const oldFileInput = document.getElementById('imageUpload'); // Get the old file input
-                const newFileInput = document.createElement('input'); // Create a new file input
-                newFileInput.type = 'file'; // Set type to file
-                newFileInput.id = 'imageUpload'; // Set id
-                newFileInput.name = 'imageUpload'; // Set name (optional, but good practice)
-                newFileInput.accept = 'image/*'; // Set accept attribute
-                newFileInput.style.display = 'none'; // Hide the new file input
-                newFileInput.addEventListener('change', (e) => { // Re-attach event listener to the new input
-                    const file = e.target.files[0];
-                    handleImageFile(file);
-                });
-                uploadArea.replaceChild(newFileInput, oldFileInput); // Replace the old input with the new one in the DOM
-            }
 
             // Event listener for close button to reset the preview
             closeButton.addEventListener('click', () => {
