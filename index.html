@@ -2,228 +2,525 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FileToolsHub - Your All-in-One File Conversion Hub</title>
-    <meta name="description" content="FileToolsHub: Convert, edit, and optimize your files online for free. Image compressor, image converter, PDF converter, PDF editor, Word converter, Excel converter, PPT converter and more.">
-    <meta name="keywords" content="file converter, image compressor, image converter, pdf converter, pdf editor, word converter, excel converter, ppt converter, online file tools, free file conversion">
-    <link rel="icon" href="favicon.ico" type="image/x-icon" alt="FileToolsHub Favicon">
+    <meta name="viewport" content="width=1280, initial-scale=0.6, maximum-scale=1.0, user-scalable=yes">
+    <title>FileToolsHub - Free Online File Converter & Editor</title>
+    <meta name="description" content="Convert & edit files online for free with FileToolsHub. Image, PDF, Word, Excel, PPT converters and more. Fast, easy, and no signup required.">
+    <meta name="keywords" content="file converter, image compressor, pdf converter, online editor, free tools">
+    <link rel="icon" href="new_favicon.ico" type="image/x-icon" alt="FileToolsHub Favicon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* (Same CSS styles as before - no changes needed in CSS) */
-        * {
+        /* Modern and Clean UI with Animations */
+        :root {
+            --primary-color: #2563EB; /* Vibrant Blue */
+            --primary-light: #60A5FA; /* Light Blue */
+            --secondary-color: #4B5563; /* Dark Grey */
+            --light-bg: #F3F4F6; /* Off-White Background */
+            --dark-text: #1F2937; /* Very Dark Grey Text */
+            --light-text: #FFFFFF; /* White Text */
+            --accent-color: #EAB308; /* Muted Yellow */
+            --card-bg: #FFFFFF; /* White Card Background */
+            --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); /* Soft Shadow */
+            --border-radius: 10px; /* Rounded Corners */
+            --transition-speed: 0.3s; /* Standard Transition Speed */
+            --header-bg: rgba(255, 255, 255, 0.95); /* Slightly transparent header */
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--dark-text);
+            background-color: var(--light-bg);
+            line-height: 1.7;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            min-width: 1280px;
+            max-width: 1920px;
+            margin: 0 auto;
         }
 
-        /* Header Styles */
+        /* Header */
         header {
-            background: #2c3e50;
-            padding: 1rem 5%;
-            position: fixed;
-            width: 100%;
+            background-color: var(--header-bg);
+            padding: 1.4rem 4%;
+            position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        nav {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(10px);
         }
 
         .logo {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1.5rem; /* Reduced gap for smaller header */
-        }
-
-        .nav-links a {
-            color: white;
+            color: var(--primary-color);
+            font-size: 2.0rem;
+            font-weight: 800;
             text-decoration: none;
-            font-size: 0.9rem; /* Slightly smaller font for nav links */
+            transition: color var(--transition-speed), transform 0.5s ease-in-out;
+            animation: logoPulse 3s infinite alternate;
+        }
+
+        .logo:hover {
+            color: var(--primary-light);
+            transform: scale(1.05);
+        }
+
+        @keyframes logoPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        nav li {
+            margin-left: 1.8rem;
+        }
+
+        nav button {
+            background-color: var(--primary-color); /* Default button background color */
+            color: var(--light-text); /* Default button text color */
+            border: 2px solid var(--primary-color); /* Default button border color */
+            padding: 0.6rem 1.4rem;
+            border-radius: var(--border-radius);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for color, transform, and shadow */
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 0 rgba(0,0,0,0); /* Initial box-shadow is none */
+        }
+
+        nav button:hover {
+            background-color: var(--primary-light); /* Lighter background on hover */
+            border-color: var(--primary-light); /* Lighter border on hover */
+            transform: translateY(-2px) scale(1.05); /* Slight lift and scale up on hover */
+             box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.3); /* Add shadow on hover */
+        }
+
+        nav button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light); /* Stronger focus outline */
+        }
+
+        @keyframes buttonPop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+
+        .header-email {
+            margin-top: 1rem;
+            font-size: 1.0rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .header-email a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color var(--transition-speed);
+        }
+
+        .header-email a:hover {
+            color: var(--primary-light);
+        }
+
+        .header-copyright {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            opacity: 0.8;
         }
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            padding: 6rem 5% 3rem; /* Reduced top and bottom padding */
+            background: linear-gradient(135deg, var(--light-bg) 85%, var(--primary-light) 100%);
+            padding: 7rem 5%; /* Reverted hero padding to be slightly larger */
             text-align: center;
-            color: white;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: 0 3px 9px rgba(0,0,0,0.04);
+            animation: heroFadeIn 1.2s ease-out;
+        }
+
+        @keyframes heroFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
         }
 
         .hero h1 {
-            font-size: 2rem; /* Slightly smaller hero heading */
-            margin-bottom: 0.8rem;
+            font-size: 2.9rem; /* Reverted hero heading font size to be slightly larger */
+            color: var(--dark-text);
+            margin-bottom: 1.5rem; /* Reverted hero heading margin bottom to be slightly larger */
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .hero p {
-            font-size: 1rem; /* Slightly smaller hero paragraph */
-            margin-bottom: 1.5rem;
+            font-size: 1.5rem; /* Reverted hero paragraph font size to be slightly larger */
+            color: var(--secondary-color);
+            margin-bottom: 2.5rem; /* Reverted hero paragraph margin bottom to be slightly larger */
+            line-height: 1.8; /* Reverted hero paragraph line height to be slightly larger */
+            opacity: 0.9;
+        }
+
+        .hero .btn {
+            padding: 0.75rem 1.6rem; /* Reverted hero button padding to be slightly larger */
+            font-size: 1.5rem; /* Reverted hero button font size to be slightly larger */
         }
 
         /* Tools Grid */
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Slightly smaller tool cards */
-            gap: 1.5rem;
-            padding: 3rem 5%; /* Reduced padding */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            padding: 3rem 5%;
+            animation: toolsGridFadeIn 1.3s ease-out;
+            margin-top: 3rem;
+            scroll-margin-top: 80px;
+            max-width: 1600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes toolsGridFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .tool-card {
-            background: white;
-            border-radius: 8px; /* Slightly less rounded corners */
-            padding: 1.5rem; /* Reduced padding */
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
             text-align: center;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.1); /* Slightly smaller shadow */
-            transition: transform 0.3s ease;
+            box-shadow: var(--card-shadow);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            border: 2px solid transparent;
+            min-width: 220px;
         }
 
         .tool-card:hover {
-            transform: translateY(-3px); /* Reduced hover effect */
+            transform: translateY(-8px);
+            box-shadow: 1px 12px 25px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-light);
         }
 
         .tool-icon {
-            font-size: 2rem; /* Smaller icons */
-            color: #3498db;
-            margin-bottom: 0.8rem;
+            font-size: 3rem; /* Reduced icon size - Keeping this for better tool visibility */
+            color: var(--primary-color);
+            margin-bottom: 0.9rem; /* Reduced margin - Keeping this for better tool visibility */
+            opacity: 0.9;
+            transition: transform var(--transition-speed);
+        }
+
+        .tool-card:hover .tool-icon {
+            transform: scale(1.1);
         }
 
         .tool-card h3 {
-            color: #2c3e50;
-            margin-bottom: 0.6rem;
-            font-size: 1.1rem; /* Smaller heading in tool card */
+            color: var(--dark-text);
+            margin-bottom: 0.7rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            transition: color var(--transition-speed);
+        }
+
+        .tool-card:hover h3 {
+            color: var(--primary-color);
         }
 
         .tool-card p {
-            color: #7f8c8d;
+            color: var(--secondary-color);
             font-size: 0.8rem;
+            margin-bottom: 1.2rem; /* Reduced margin - Keeping this for better tool visibility */
+            flex-grow: 1;
+            opacity: 0.7;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.45rem 1rem; /* Reduced button padding - Keeping this for better tool visibility */
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+            font-size: 0.8rem; /* Reduced button font-size - Keeping this for better tool visibility */
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.08);
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: scale(1.03);
+            box-shadow: 0 4px 9px rgba(0, 0, 0, 0.12);
         }
 
         /* Footer */
         footer {
-            background: #2c3e50;
-            color: white;
+            background-color: var(--dark-text);
+            color: var(--light-text);
             text-align: center;
-            padding: 1.5rem 5%; /* Reduced padding */
-            margin-top: 3rem; /* Reduced margin */
-            font-size: 0.8rem; /* Smaller font in footer */
+            padding: 0.1rem 3%;
+            margin-top: 4rem;
+            font-size: 1rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            box-shadow: 0 -1px 8px rgba(23, 112, 60, 0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Ad Banners */
+        .ad-banner-top, .ad-banner-bottom {
+            margin: 2rem 5%;
+            padding: 1.2rem;
+            text-align: center;
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            border: 1px solid #eee;
+            box-shadow: var(--card-shadow);
+            transition: box-shadow var(--transition-speed), transform var(--transition-speed);
+            opacity: 0.8;
+        }
+
+        .ad-banner-top:hover, .ad-banner-bottom:hover {
+            transform: scale(1.01);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+            opacity: 1;
+        }
+
+        /* About and Contact Sections */
+        #about-details {
+            padding: 3rem 6%;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin: 3.5rem 5%;
+            box-shadow: var(--card-shadow);
+            border: 2px solid #eee;
+            text-align: center;
+        }
+
+        #about-details h2 {
+            color: var(--primary-color);
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        #about-details p {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            line-height: 1.75;
+            margin-bottom: 1.6rem;
+        }
+
+        #about-details ul {
+            list-style: none;
+            padding: 0;
+            display: inline-block;
+            text-align: left;
+        }
+
+        #about-details li {
+            margin-bottom: 0.8rem;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+            padding-left: 1.3rem;
+            position: relative;
+            text-align: left;
+        }
+
+        #about-details li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0.1rem;
+            color: var(--accent-color);
+            font-size: 0.85rem;
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-
-            .hero p {
-                font-size: 0.9rem;
-            }
-
+        @media (max-width: 1366px) {
             .tools-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 1200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Override mobile styles to maintain desktop layout */
+            body {
+                transform-origin: top;
+                overflow-x: auto;
+            }
+            
+            .tools-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+                padding: 2rem 3%;
+            }
+
+            .tool-card {
+                min-width: 200px;
+            }
+
+            .hero-content {
+                max-width: 1000px;
+                padding: 1.5rem 0;
             }
         }
 
         @media (max-width: 480px) {
+            /* Override mobile styles to maintain desktop layout */
             .hero {
-                padding: 5rem 5% 2rem;
+                padding: 7rem 5%;
             }
-
+            .hero h1 {
+                font-size: 2.9rem;
+            }
+            .hero p {
+                font-size: 1.5rem;
+            }
+            .tools-grid {
+                padding: 3rem 5%;
+                gap: 2rem;
+            }
             .tool-card {
-                padding: 1rem;
+                padding: 1.2rem;
+            }
+            .tool-icon {
+                font-size: 3rem;
+            }
+            .tool-card h3 {
+                font-size: 1.3rem;
+            }
+            .tool-card p {
+                font-size: 0.8rem;
+            }
+            #about-details {
+                padding: 3rem 6%;
+                margin: 3.5rem 5%;
+            }
+            #about-details h2 {
+                font-size: 2.8rem;
+            }
+            #about-details p, #about-details li {
+                font-size: 1rem;
             }
         }
 
         /* Utility Classes */
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 1.5rem; /* Smaller button padding */
-            background: #e74c3c;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px; /* Slightly less rounded button */
-            transition: background 0.3s ease;
-        }
-
-        .btn:hover {
-            background: #c0392b;
-        }
-
-        /* Ad Styles */
-        .ad-banner-top, .ad-banner-bottom, .ad-sidebar {
-            margin-bottom: 1.5rem;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px dashed #ccc;
-            text-align: center;
-            border-radius: 5px;
-        }
-
-        .ad-banner-top {
-            margin-top: 7rem; /* Adjust margin-top to be below fixed header */
-            margin-left: 5%;
-            margin-right: 5%;
-        }
-
-        .ad-banner-bottom {
-             margin-left: 5%;
-            margin-right: 5%;
-        }
-
-        .ad-sidebar {
-            /* Example for sidebar ad - you might need to adjust placement in a real layout */
-            float: right;
-            width: 30%;
-            margin-top: 7rem; /* Align with top content */
-            margin-right: 5%;
-        }
-
-        .btn {
-    display: inline-block;
-    padding: 8px 16px;
-    background-color: #0acfde; /* Blue color */
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-.btn:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-}
-
-
-        /* Clearfix for floating sidebar if needed */
         .clearfix::after {
             content: "";
             display: table;
             clear: both;
         }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(15px);
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes sectionHeadingSlide {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toolsGridFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
+
 </head>
 <body>
     <header>
+        <a href="/" class="logo">FILETOOLSHUB</a>
         <nav>
-            <div class="logo">FileToolsHub</div>
-            <div class="nav-links">
-                </div>
+            <ul>
+                <li><button onclick="location.href='#hero'">HOME</button></li>
+                <li><button onclick="location.href='#tools'">TOOLS</button></li>
+                <li><button onclick="toggleAboutDetails()">ABOUT</button></li>
+            </ul>
         </nav>
     </header>
 
 <main class="clearfix">
+
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <h1>Simplify File Management with FileToolsHub</h1>
+            <p>Convert, edit, and optimize your files effortlessly online. Experience fast, free, and user-friendly tools for all your document needs.</p>
+            <a href="#tools" class="btn">Explore Tools</a>
+        </div>
+    </section>
+
     <section class="ad-banner-top">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script>
         <ins class="adsbygoogle"
@@ -231,72 +528,72 @@
              data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
              data-ad-slot="yyyyyyyyyyyyyy"
              data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+             data-ad-full-width-responsive="true"></ins>
         <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
+            (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
-        </section>
-
-    <section class="hero">
-        <h1>Your All-in-One File Conversion Hub</h1>
-        <p>Convert, edit, and optimize images and PDFs with our powerful online tools</p>
     </section>
 
-    <section class="tools-grid">
-       <div class="tool-card">
-  <i class="fas fa-image tool-icon"></i>
-  <h3>Image Compressor</h3>
-  <p>Reduce image file size without losing quality</p>
-  <a href="/Tools/img-compress.html" class="btn"> Click Here</a>
-</div>
 
-
+    <section id="tools" class="tools-grid">
+        <div class="tool-card">
+            <i class="fas fa-image tool-icon"></i>
+            <h3><a >Image Compressor</a></h3>
+            <p>Optimize images for quick sharing.</p>
+            <a href="https://imagecompressor.com/" class="btn" style="background-color: var(--primary-color);">Try Now</a>
+         </div>
         <div class="tool-card">
             <i class="fas fa-image tool-icon"></i>
             <h3>Image Converter</h3>
-            <p>Convert images to various formats </p>
+            <p>Convert to JPG, PNG, WebP & more.</p>
+            <a href="https://www.adobe.com/express/feature/image/convert" class="btn">Convert</a>
+        </div>
+        
+        <div class="tool-card">
+            <i class="fas fa-file-pdf tool-icon"></i>
+            <h3>PDF Compressor</h3>
+            <p>Reduce PDF file sizes easily.</p>
+            <a href="https://smallpdf.com/compress-pdf" class="btn">Compress</a>
         </div>
 
         <div class="tool-card">
             <i class="fas fa-file-pdf tool-icon"></i>
             <h3>PDF Converter</h3>
-            <p>Convert PDFs to various formats </p>
+            <p>Convert PDFs to other formats.</p>
+            <a href="https://smallpdf.com/pdf-converter" class="btn">Convert</a>
         </div>
         <div class="tool-card">
             <i class="fas fa-file-pdf tool-icon"></i>
             <h3>PDF Editor</h3>
-            <p>Edit and modify your PDF documents online</p>
+            <p>Edit & modify PDF documents online.</p>
+            <a href="https://xodo.com/pdf-editor" class="btn">Edit</a>
         </div>
 
         <div class="tool-card">
             <i class="fas fa-file-word tool-icon"></i>
             <h3>Word Converter</h3>
-            <p>Convert Word documents to various formats</p>
+            <p>Convert Word documents with ease.</p>
+            <a href="https://xodo.com/pdf-to-word-converter" class="btn">Convert Word</a>
         </div>
 
-        <div class="tool-card">
-            <i class="fas fa-file-excel tool-icon"></i>
-            <h3>Excel Converter</h3>
-            <p>Convert Excel spreadsheets to various formats</p>
-        </div>
+       
+    </section>
 
-        <div class="tool-card">
-            <i class="fas fa-file-powerpoint tool-icon"></i>
-            <h3>PPT Converter</h3>
-            <p>Convert PowerPoint presentations to various formats</p>
-        </div>
-         <section class="ad-sidebar">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx"></script>
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
-                 data-ad-slot="zzzzzzzzzzzz"
-                 data-ad-format="auto"
-                 data-ad-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-            </section>
+    <section id="about-details">
+        <h2>About FileToolsHub</h2>
+        <p>FileToolsHub is your dedicated online resource for efficient file conversion and editing. We specialize in providing a suite of free, intuitive tools designed to simplify your digital workflow and eliminate the complexities of file management.</p>
+        <p><strong>Discover Our Streamlined Tools:</strong></p>
+        <ul>
+            <li><strong>Image Compressor:</strong>  Quickly optimize your images for web use and sharing, maintaining excellent quality at reduced file sizes.</li>
+            <li><strong>Image Converter:</strong>  Effortlessly switch between image formats to ensure compatibility across all platforms.</li>
+            <li><strong>PDF Compressor:</strong>  Reduce PDF file sizes for easier sharing and storage without compromising document integrity.</li>
+            <li><strong>PDF Converter:</strong>  Seamlessly transform PDFs to editable formats and back, making document handling simpler than ever.</li>
+            <li><strong>PDF Editor:</strong>  Easily modify, annotate, and refine your PDF documents with our straightforward online editor.</li>
+            <li><strong>Word Converter:</strong>  Adapt your Word documents to various formats for enhanced accessibility and sharing.</li>
+            <li><strong>Excel Converter:</strong>  Ensure your spreadsheets are universally compatible by converting them to different file types with ease.</li>
+            <li><strong>PPT Converter:</strong>  Convert PowerPoint presentations to widely accessible formats, perfect for sharing and broader access.</li>
+        </ul>
+        <p>FileToolsHub is built with a focus on user experience and efficiency, delivering high-caliber conversion and editing capabilities at absolutely no cost. Simplify your file management tasks today with FileToolsHub and experience the future of online file tools!</p>
     </section>
 
     <section class="ad-banner-bottom">
@@ -306,15 +603,28 @@
              data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
              data-ad-slot="wwwwwwwwwwww"
              data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+             data-ad-full-width-responsive="true"></ins>
         <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
+            (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
-        </section>
+    </section>
 </main>
 
     <footer>
-        <p>&copy; 2023 FileToolsHub. All rights reserved.</p>
+        <p>&copy; 2025 FileToolsHub. All rights reserved.</p>
+        <div class="header-email">
+            <a href="mailto:support@filetoolshub.com">support@filetoolshub.com</a>
+        </div>
     </footer>
+
+<script>
+    function toggleAboutDetails() {
+        var aboutDetails = document.getElementById('about-details');
+        aboutDetails.classList.toggle('show');
+        if (aboutDetails.classList.contains('show')) {
+            aboutDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+</script>
 </body>
 </html>
