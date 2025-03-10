@@ -1,0 +1,3377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro PDF Editor - Advanced PDF Editing & Management Tool</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Professional PDF editor with advanced features including text editing, image insertion, conversion, merging, splitting, OCR, and more.">
+    <meta name="keywords" content="pdf editor, pdf tools, edit pdf, merge pdf, split pdf, ocr pdf, pdf to word, pdf converter">
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --sidebar-width: 280px;
+            --header-height: 64px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-section h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .tool-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .tool-button:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .tool-button:active {
+            transform: translateY(0);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .toolbar {
+            height: var(--header-height);
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            padding: 1rem;
+            gap: 1rem;
+            overflow: hidden;
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: calc(100vh - var(--header-height)) !important;
+        }
+
+        .pdf-container {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem;
+            min-height: 300px !important;
+            max-height: 100% !important;
+        }
+
+        #pdfCanvas {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #editCanvas {
+            position: absolute !important;
+            top: 1rem !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 2 !important;
+        }
+
+        .canvas-container {
+            position: absolute !important;
+            top: 1rem !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 2;
+        }
+
+        .canvas-container .fabric-text-editing,
+        .canvas-container .fabric-text {
+            position: absolute !important;
+            transform: none !important;
+            width: auto !important;
+            height: auto !important;
+            transform-origin: left top !important;
+            transform-box: content-box !important;
+            resize: none !important;
+            white-space: pre !important;
+            font-size: inherit !important;
+            transform-style: preserve-3d !important;
+            backface-visibility: hidden !important;
+        }
+
+        .canvas-container .text-container {
+            position: absolute !important;
+            transform: none !important;
+            width: auto !important;
+            height: auto !important;
+            transform-origin: left top !important;
+            transform-box: content-box !important;
+            resize: none !important;
+            transform-style: preserve-3d !important;
+            backface-visibility: hidden !important;
+        }
+
+        .canvas-container .fabric-text-editing textarea,
+        .canvas-container .fabric-text-editing-input {
+            position: absolute !important;
+            transform: none !important;
+            width: auto !important;
+            height: auto !important;
+            resize: none !important;
+            white-space: pre !important;
+            font-size: inherit !important;
+            transform-style: preserve-3d !important;
+            backface-visibility: hidden !important;
+        }
+
+        .canvas-container .upper-canvas {
+            z-index: 2 !important;
+        }
+
+        /* Prevent text stretching during container resize */
+        .canvas-container .fabric-text-editing {
+            transform-origin: left top !important;
+            transform: scale(1) !important;
+        }
+
+        .canvas-container .fabric-text {
+            transform-origin: left top !important;
+            transform: scale(1) !important;
+            font-size: inherit !important;
+        }
+
+        /* Fix text scaling during container resize */
+        .canvas-container .text-container {
+            transform-origin: left top !important;
+            transform: scale(1) !important;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width:500px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .property-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .property-group h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Form Controls */
+        .form-control {
+            margin-bottom: 1.2rem;
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-control label {
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .form-control input,
+        .form-control select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 60px;
+            }
+
+            .tool-button span {
+                display: none;
+            }
+
+            .properties-panel {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .properties-panel {
+                display: none;
+            }
+        }
+
+        /* Add styles for the shape selection modal */
+        .shape-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .shape-modal button {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        /* Signature modal styles */
+        .signature-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signature-modal .modal-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 5px;
+            width: 500px;
+        }
+
+        #signaturePad {
+            border: 1px solid var(--border-color);
+            margin: 10px 0;
+            width: 100%;
+            height: 200px;
+            background: white;
+        }
+
+        /* Add cursor styling */
+        .text-cursor {
+            position: absolute;
+            width: 2px;
+            background-color: var(--primary-color);
+            animation: blink 1s infinite;
+            height: 1.2em;
+            pointer-events: none;
+            z-index: 1000;
+            transform: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: inherit !important;
+        }
+
+        .canvas-container .fabric-text-editing {
+            position: relative !important;
+            transform: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: inherit !important;
+        }
+
+        .canvas-container .fabric-text-editing textarea {
+            position: absolute !important;
+            transform: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            line-height: inherit !important;
+            min-height: 0 !important;
+            text-indent: 0 !important;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes blink {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+        /* Improve text editing experience */
+        .canvas-container .fabric-text-editing {
+            position: relative !important;
+        }
+
+        .canvas-container .fabric-text-editing::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--primary-color);
+            animation: blink 1s infinite;
+            pointer-events: none;
+            z-index: 1000;
+            vertical-align: baseline;
+            transform: none !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .canvas-container {
+                width: 100% !important;
+                margin: 0 auto !important;
+            }
+
+            .pdf-container {
+                padding: 0.5rem !important;
+            }
+        }
+
+        .case-controls {
+            margin-top: 1rem;
+        }
+        
+        .case-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .case-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .case-btn {
+            width: 100%;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-btn i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .case-btn span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .case-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .case-btn:hover i {
+            transform: scale(1.2);
+            color: var(--primary-color);
+        }
+
+        .case-btn:active {
+            transform: translateY(0);
+        }
+
+        .case-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+        }
+
+        .case-btn:hover::before {
+            width: 150%;
+            height: 150%;
+            opacity: 0.1;
+        }
+
+        .case-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        @keyframes buttonPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+        .case-btn.clicked {
+            animation: buttonPop 0.3s ease;
+        }
+
+        .shadow-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .shadow-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .shadow-params {
+            display: flex;
+            gap: 5px;
+        }
+
+        .shadow-params input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .shadow-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .shadow-group {
+            background: var(--card-bg);
+            padding: 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .shadow-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .shadow-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .shadow-color-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .shadow-color {
+            width: 60px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .shadow-sliders {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .shadow-slider-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .shadow-slider-group .styled-range {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            appearance: none;
+        }
+
+        .shadow-slider-group .styled-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .shadow-slider-group .range-value {
+            min-width: 45px;
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .sub-label {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            min-width: 80px;
+        }
+
+        .shadow-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-shadow {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-shadow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-shadow:active {
+            transform: translateY(0);
+        }
+
+        .btn-shadow i {
+            font-size: 0.9rem;
+        }
+
+        .property-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transform-origin: top;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .property-card:hover {
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.15);
+            transform: translateY(-4px) scale(1.01);
+        }
+
+        .property-card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+            color: white;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .property-card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                left: 100%;
+            }
+        }
+
+        .property-card-header i {
+            animation: iconPulse 2s infinite;
+        }
+
+        @keyframes iconPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-style {
+            min-width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            padding: 0.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-style::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+        }
+
+        .btn-style:hover::before {
+            width: 150%;
+            height: 150%;
+            opacity: 0.1;
+        }
+
+        .btn-style:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .btn-style.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            animation: activeButtonPop 0.3s ease;
+        }
+
+        @keyframes activeButtonPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .styled-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23555" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            animation: selectFadeIn 0.5s ease;
+        }
+
+        @keyframes selectFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .styled-select:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .styled-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            outline: none;
+        }
+
+        .form-control {
+            margin-bottom: 1.2rem;
+            background: var(--bg-color);
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            animation: controlFadeIn 0.5s ease;
+        }
+
+        @keyframes controlFadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .form-control:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .range-control {
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .styled-range {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .styled-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .styled-range::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .range-value {
+            position: absolute;
+            right: 0;
+            top: -20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .styled-range:hover + .range-value,
+        .styled-range:active + .range-value {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .effect-group {
+            background: var(--bg-color);
+            padding: 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .effect-group:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        #clearAllEffects {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        #clearAllEffects:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        #clearAllEffects:active {
+            transform: translateY(0);
+        }
+
+        #clearAllEffects i {
+            transition: transform 0.3s ease;
+        }
+
+        #clearAllEffects:hover i {
+            animation: eraseAnimation 1s infinite;
+        }
+
+        @keyframes eraseAnimation {
+            0% { transform: translateX(0) rotate(0); }
+            50% { transform: translateX(5px) rotate(15deg); }
+            100% { transform: translateX(0) rotate(0); }
+        }
+
+        .style-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-style {
+            min-width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            padding: 0.8rem;
+        }
+
+        .btn-style:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-style.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .case-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            padding: 1rem;
+        }
+
+        .case-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .case-btn {
+            width: 100%;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: white;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .case-btn i {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .case-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .case-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .case-label {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .highlighter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .button-group.alignment-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .button-group.style-buttons {
+            display: flex;
+            justify-content: center;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="toast">
+        <i class="fas"></i>
+        <span class="toast-message"></span>
+    </div>
+    <div class="app-container">
+        <!-- Sidebar with Tools -->
+        <div class="sidebar">
+            <div class="tool-section">
+                <h3>File</h3>
+                <button class="tool-button" id="openFile">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Open PDF</span>
+                </button>
+                <button class="tool-button" id="savePDF">
+                    <i class="fas fa-save"></i>
+                    <span>Save PDF</span>
+                </button>
+            </div>
+
+            <div class="tool-section">
+                <h3>Edit</h3>
+                <button class="tool-button" id="addText">
+                    <i class="fas fa-font"></i>
+                    <span>Add Text</span>
+                </button>
+                <button class="tool-button" id="addImage">
+                    <i class="fas fa-image"></i>
+                    <span>Add Image</span>
+                </button>
+                <button class="tool-button" id="addShape">
+                    <i class="fas fa-shapes"></i>
+                    <span>Add Shape</span>
+                </button>
+                <button class="tool-button" id="addSignature">
+                    <i class="fas fa-signature"></i>
+                    <span>Add Signature</span>
+                </button>
+            </div>
+            <!-- Removed Tools and Convert sections -->
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="btn btn-primary" id="undoBtn">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn btn-primary" id="redoBtn">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn btn-danger" id="deleteBtn">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <select id="zoomLevel">
+                    <option value="0.5">50%</option>
+                    <option value="0.75">75%</option>
+                    <option value="1" selected>100%</option>
+                    <option value="1.25">125%</option>
+                    <option value="1.5">150%</option>
+                    <option value="2">200%</option>
+                </select>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button class="btn btn-primary" id="prevPage">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-primary" id="nextPage">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Editor Container -->
+            <div class="editor-container">
+                <div class="pdf-container">
+                    <canvas id="pdfCanvas"></canvas>
+                    <canvas id="editCanvas"></canvas>
+                </div>
+
+                <!-- Properties Panel -->
+                <div class="properties-panel">
+                    <div class="property-group" id="textProperties" style="display: none;">
+                        <h4 class="properties-title">Text Properties</h4>
+                        <div class="properties-section">
+                            <!-- Basic Text Settings -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-font"></i>
+                                    <span>Basic Settings</span>
+                                </div>
+                                <div class="property-card-content">
+                        <div class="form-control">
+                            <label>Font Family</label>
+                                        <select id="fontFamily" class="styled-select">
+                                            <optgroup label="Sans Serif Fonts">
+                                <option value="Arial">Arial</option>
+                                                <option value="Helvetica">Helvetica</option>
+                                                <option value="Verdana">Verdana</option>
+                                                <option value="Tahoma">Tahoma</option>
+                                                <option value="Trebuchet MS">Trebuchet MS</option>
+                                                <option value="Calibri">Calibri</option>
+                                                <option value="Open Sans">Open Sans</option>
+                                                <option value="Roboto">Roboto</option>
+                                            </optgroup>
+                                            <optgroup label="Serif Fonts">
+                                <option value="Times New Roman">Times New Roman</option>
+                                                <option value="Georgia">Georgia</option>
+                                                <option value="Garamond">Garamond</option>
+                                                <option value="Baskerville">Baskerville</option>
+                                                <option value="Palatino">Palatino</option>
+                                            </optgroup>
+                                            <optgroup label="Monospace Fonts">
+                                <option value="Courier New">Courier New</option>
+                                                <option value="Consolas">Consolas</option>
+                                                <option value="Monaco">Monaco</option>
+                                            </optgroup>
+                                            <optgroup label="Decorative Fonts">
+                                                <option value="Comic Sans MS">Comic Sans MS</option>
+                                                <option value="Impact">Impact</option>
+                                                <option value="Brush Script MT">Brush Script MT</option>
+                                            </optgroup>
+                            </select>
+                        </div>
+                                    <div class="form-row">
+                                        <div class="form-col">
+                            <label>Font Size</label>
+                                            <div class="size-input-group">
+                                                <input type="number" id="fontSize" value="20" min="8" max="200" class="styled-input" style="width: 80px; padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                                <span class="unit" style="margin-left: 8px; font-size: 0.9rem; color: var(--text-color);">px</span>
+                        </div>
+                                        </div>
+                                        <div class="form-col">
+                                            <label>Text Color</label>
+                                            <input type="color" id="textColor" value="#000000" class="color-picker" style="width: 60px; height: 40px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Text Style -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-text-height"></i>
+                                    <span>Text Style</span>
+                                </div>
+                                <div class="property-card-content">
+                                    <div class="style-controls">
+                                        <div class="button-group style-buttons" style="background: var(--bg-color); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                            <button id="boldText" class="btn btn-style" title="Bold" style="min-width: 45px; height: 45px;">
+                                                <i class="fas fa-bold"></i>
+                                            </button>
+                                            <button id="italicText" class="btn btn-style" title="Italic" style="min-width: 45px; height: 45px;">
+                                                <i class="fas fa-italic"></i>
+                                            </button>
+                                            <button id="underlineText" class="btn btn-style" title="Underline" style="min-width: 45px; height: 45px;">
+                                                <i class="fas fa-underline"></i>
+                                            </button>
+                                        </div>
+                                        <div class="button-group alignment-buttons" style="background: var(--bg-color); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                            <button id="alignLeft" class="btn btn-style active" title="Align Left" style="min-width: 45px; height: 45px;">
+                                                <i class="fas fa-align-left"></i>
+                                            </button>
+                                            <button id="alignCenter" class="btn btn-style" title="Align Center" style="min-width: 45px; height: 45px;">
+                                                <i class="fas fa-align-center"></i>
+                                            </button>
+                                            <button id="alignRight" class="btn btn-style" title="Align Right" style="min-width: 45px; height: 45px;">
+                                                <i class="fas fa-align-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Text Case -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-text-width"></i>
+                                    <span>Text Case</span>
+                                </div>
+                                <div class="property-card-content">
+                                    <div class="button-group case-buttons">
+                                        <div class="case-btn-container" style="text-align: center;">
+                                            <button id="upperCase" class="btn btn-style case-btn" title="UPPERCASE">
+                                                <i class="fas fa-arrow-up"></i>
+                                                <span>ABC</span>
+                                            </button>
+                                            <div class="case-label" style="margin-top: 5px; font-size: 0.8rem; color: var(--text-color);">UPPERCASE</div>
+                                        </div>
+                                        <div class="case-btn-container" style="text-align: center;">
+                                            <button id="lowerCase" class="btn btn-style case-btn" title="lowercase">
+                                                <i class="fas fa-arrow-down"></i>
+                                                <span>abc</span>
+                                            </button>
+                                            <div class="case-label" style="margin-top: 5px; font-size: 0.8rem; color: var(--text-color);">lowercase</div>
+                                        </div>
+                                        <div class="case-btn-container" style="text-align: center;">
+                                            <button id="properCase" class="btn btn-style case-btn" title="Proper Case">
+                                                <i class="fas fa-font"></i>
+                                                <span>Abc</span>
+                                            </button>
+                                            <div class="case-label" style="margin-top: 5px; font-size: 0.8rem; color: var(--text-color);">Proper Case</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Spacing -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-arrows-alt-h"></i>
+                                    <span>Spacing</span>
+                                </div>
+                                <div class="property-card-content">
+                        <div class="form-control">
+                                        <label>Line Height</label>
+                                        <div class="range-control">
+                                            <input type="range" id="lineHeight" min="0.5" max="2.5" step="0.1" value="1.2" class="styled-range">
+                                            <span class="range-value">1.2</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-control">
+                                        <label>Character Spacing</label>
+                                        <div class="range-control">
+                                            <input type="range" id="charSpacing" min="-200" max="800" step="10" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Effects -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-magic"></i>
+                                    <span>Effects</span>
+                                </div>
+                                <div class="property-card-content">
+                                    <!-- Background -->
+                                    <div class="effect-group">
+                                        <div class="effect-header">
+                                            <label>Background</label>
+                                            <label class="toggle">
+                                                <input type="checkbox" id="textBgToggle">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <input type="color" id="textBgColor" value="#ffffff" class="color-picker shadow-color">
+                                    </div>
+
+                                    <!-- Outline -->
+                                    <div class="effect-group">
+                                        <div class="effect-header">
+                                            <label>Outline</label>
+                                            <input type="color" id="strokeColor" value="#000000" class="color-picker shadow-color">
+                                        </div>
+                                        <div class="range-control">
+                                            <input type="range" id="strokeWidth" min="0" max="3" step="0.1" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Shadow -->
+                                    <div class="effect-group">
+                                        <div class="shadow-controls">
+                                            <div class="shadow-inputs">
+                                                <div class="shadow-color-group">
+                                                    <label>Shadow Color</label>
+                                                    <input type="color" id="shadowColor" value="#000000" class="color-picker shadow-color">
+                                                </div>
+                                                <div class="shadow-sliders">
+                                                    <div class="shadow-slider-group">
+                                                        <label>Offset X</label>
+                                                        <input type="range" id="shadowOffsetX" value="0" min="-50" max="50" class="styled-range">
+                                                        <span class="range-value">0px</span>
+                                                    </div>
+                                                    <div class="shadow-slider-group">
+                                                        <label>Offset Y</label>
+                                                        <input type="range" id="shadowOffsetY" value="0" min="-50" max="50" class="styled-range">
+                                                        <span class="range-value">0px</span>
+                                                    </div>
+                                                    <div class="shadow-slider-group">
+                                                        <label>Blur</label>
+                                                        <input type="range" id="shadowBlur" value="0" min="0" max="50" class="styled-range">
+                                                        <span class="range-value">0px</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="shadow-buttons">
+                                                <button id="addShadow" class="btn btn-primary btn-shadow">
+                                                    <i class="fas fa-plus"></i> Apply Shadow
+                                                </button>
+                                                <button id="removeShadow" class="btn btn-danger btn-shadow">
+                                                    <i class="fas fa-times"></i> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Clear All Button -->
+                                    <div class="effect-group" style="margin-top: 20px;">
+                                        <button id="clearAllEffects" class="btn btn-danger" style="width: 100%; padding: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                            <i class="fas fa-eraser"></i>
+                                            Clear All Effects
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="property-group" id="imageProperties" style="display: none;">
+                        <h4 class="properties-title">Image Properties</h4>
+                        <div class="properties-section">
+                            <!-- Basic Image Settings -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-image"></i>
+                                    <span>Basic Settings</span>
+                                </div>
+                                <div class="property-card-content">
+                        <div class="form-control">
+                            <label>Opacity</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageOpacity" min="0" max="1" step="0.1" value="1" class="styled-range">
+                                            <span class="range-value">100%</span>
+                                        </div>
+                        </div>
+                        <div class="form-control">
+                            <label>Rotation</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageRotation" min="0" max="360" step="1" value="0" class="styled-range">
+                                            <span class="range-value">0°</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Image Effects -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-magic"></i>
+                                    <span>Image Effects</span>
+                                </div>
+                                <div class="property-card-content">
+                                    <div class="form-control">
+                                        <label>Brightness</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageBrightness" min="-1" max="1" step="0.1" value="0" class="styled-range">
+                                            <span class="range-value">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-control">
+                                        <label>Contrast</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageContrast" min="-1" max="1" step="0.1" value="0" class="styled-range">
+                                            <span class="range-value">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-control">
+                                        <label>Saturation</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageSaturation" min="0" max="2" step="0.1" value="1" class="styled-range">
+                                            <span class="range-value">1</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-control">
+                                        <label>Blur</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageBlur" min="0" max="10" step="0.1" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Border Settings -->
+                            <div class="property-card">
+                                <div class="property-card-header">
+                                    <i class="fas fa-border-style"></i>
+                                    <span>Border Settings</span>
+                                </div>
+                                <div class="property-card-content">
+                                    <div class="form-control">
+                                        <label>Border Color</label>
+                                        <input type="color" id="imageBorderColor" value="#000000" class="color-picker" style="width: 100%; height: 40px;">
+                                    </div>
+                                    <div class="form-control">
+                                        <label>Border Width</label>
+                                        <div class="range-control">
+                                            <input type="range" id="imageBorderWidth" min="0" max="20" step="1" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-control">
+                                        <label>Border Style</label>
+                                        <select id="imageBorderStyle" class="styled-select">
+                                            <option value="solid">Solid</option>
+                                            <option value="dashed">Dashed</option>
+                                            <option value="dotted">Dotted</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reset Button -->
+                            <div class="effect-group" style="margin-top: 20px;">
+                                <button id="resetImageEffects" class="btn btn-danger" style="width: 100%; padding: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-undo"></i>
+                                    Reset Image Effects
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="property-group" id="shapeProperties" style="display: none;">
+                        <h4>Shape Properties</h4>
+                        <!-- Basic Shape Settings -->
+                        <div class="property-card">
+                            <div class="property-card-header">
+                                <i class="fas fa-palette"></i>
+                                <span>Basic Settings</span>
+                            </div>
+                            <div class="property-card-content">
+                        <div class="form-control">
+                                    <label>Fill Color</label>
+                                    <input type="color" id="shapeFillColor" value="#ffffff" class="color-picker">
+                                </div>
+                                <div class="form-control">
+                                    <label>Fill Opacity</label>
+                                    <div class="range-control">
+                                        <input type="range" id="shapeFillOpacity" min="0" max="1" step="0.1" value="1" class="styled-range">
+                                        <span class="range-value">100%</span>
+                                    </div>
+                        </div>
+                        <div class="form-control">
+                                    <label>Stroke Color</label>
+                                    <input type="color" id="shapeStrokeColor" value="#000000" class="color-picker">
+                        </div>
+                        <div class="form-control">
+                                    <label>Stroke Width</label>
+                                    <div class="range-control">
+                                        <input type="range" id="shapeStrokeWidth" min="0" max="20" step="1" value="1" class="styled-range">
+                                        <span class="range-value">1px</span>
+                        </div>
+                    </div>
+                                <div class="form-control">
+                                    <label>Stroke Style</label>
+                                    <select id="shapeStrokeStyle" class="styled-select">
+                                        <option value="solid">Solid</option>
+                                        <option value="dashed">Dashed</option>
+                                        <option value="dotted">Dotted</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transform Settings -->
+                        <div class="property-card">
+                            <div class="property-card-header">
+                                <i class="fas fa-vector-square"></i>
+                                <span>Transform</span>
+                            </div>
+                            <div class="property-card-content">
+                                <div class="form-control">
+                                    <label>Rotation</label>
+                                    <div class="range-control">
+                                        <input type="range" id="shapeRotation" min="0" max="360" step="1" value="0" class="styled-range">
+                                        <span class="range-value">0°</span>
+                                    </div>
+                                </div>
+                                <div class="form-control">
+                                    <label>Scale</label>
+                                    <div class="range-control">
+                                        <input type="range" id="shapeScale" min="0.1" max="3" step="0.1" value="1" class="styled-range">
+                                        <span class="range-value">100%</span>
+                                    </div>
+                                </div>
+                                <div class="form-control">
+                                    <label>Skew X</label>
+                                    <div class="range-control">
+                                        <input type="range" id="shapeSkewX" min="-45" max="45" step="1" value="0" class="styled-range">
+                                        <span class="range-value">0°</span>
+                                    </div>
+                                </div>
+                                <div class="form-control">
+                                    <label>Skew Y</label>
+                                    <div class="range-control">
+                                        <input type="range" id="shapeSkewY" min="-45" max="45" step="1" value="0" class="styled-range">
+                                        <span class="range-value">0°</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Effects -->
+                        <div class="property-card">
+                            <div class="property-card-header">
+                                <i class="fas fa-magic"></i>
+                                <span>Effects</span>
+                            </div>
+                            <div class="property-card-content">
+                                <div class="form-control">
+                                    <label>Shadow</label>
+                                    <div class="shadow-controls">
+                                        <input type="color" id="shapeShadowColor" value="#000000" class="color-picker">
+                                        <div class="range-control">
+                                            <label>Blur</label>
+                                            <input type="range" id="shapeShadowBlur" min="0" max="50" step="1" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                        <div class="range-control">
+                                            <label>Offset X</label>
+                                            <input type="range" id="shapeShadowOffsetX" min="-50" max="50" step="1" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                        <div class="range-control">
+                                            <label>Offset Y</label>
+                                            <input type="range" id="shapeShadowOffsetY" min="-50" max="50" step="1" value="0" class="styled-range">
+                                            <span class="range-value">0px</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="effect-group" style="margin-top: 20px;">
+                            <button id="resetShapeEffects" class="btn btn-danger" style="width: 100%; padding: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fas fa-undo"></i>
+                                Reset Shape Effects
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="signatureModal">
+        <div class="modal-content">
+            <h3>Add Signature</h3>
+            <canvas id="signaturePad"></canvas>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="saveSignature">Save</button>
+                <button class="btn" id="clearSignature">Clear</button>
+                <button class="btn" id="closeSignature">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentPDF = null;
+            let currentPage = 1;
+            let totalPages = 1;
+            let zoomLevel = 1.0;
+            let pdfCanvas = document.getElementById('pdfCanvas');
+            let editCanvas = document.getElementById('editCanvas');
+            let ctx = pdfCanvas.getContext('2d');
+            let pageEdits = {};
+            
+            // Initialize fabric canvas
+            let fabricCanvas = new fabric.Canvas('editCanvas', {
+                isDrawingMode: false,
+                selection: true,
+                interactive: true,
+                preserveObjectStacking: true
+            });
+            
+            // Ensure fabric canvas is above PDF canvas
+            fabricCanvas.wrapperEl.style.position = 'absolute';
+            fabricCanvas.wrapperEl.style.zIndex = '2';
+
+            // Initialize signature pad
+            const signaturePad = new SignaturePad(document.getElementById('signaturePad'), {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+
+            // Function to show property panels
+            function showProperties(panelId) {
+                // Hide all property panels
+                document.querySelectorAll('.property-group').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+                // Show the selected panel
+                const panel = document.getElementById(panelId);
+                if (panel) panel.style.display = 'block';
+            }
+
+            // PDF Loading Function
+            async function loadPDF(arrayBuffer) {
+                try {
+                    // Load the PDF document
+                    currentPDF = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    totalPages = currentPDF.numPages;
+                    currentPage = 1;
+                    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                    
+                    // Render the first page
+                    await renderPage(currentPage);
+                    
+                    // Enable editing tools
+                    enableEditingTools();
+                } catch (error) {
+                    console.error('Error loading PDF:', error);
+                    alert('Error loading PDF file');
+                }
+            }
+
+            // Page Rendering Function
+            async function renderPage(pageNumber, scale = zoomLevel) {
+                try {
+                    const page = await currentPDF.getPage(pageNumber);
+                    const viewport = page.getViewport({ scale: scale });
+                    
+                    // Set dimensions for PDF canvas
+                    pdfCanvas.width = viewport.width;
+                    pdfCanvas.height = viewport.height;
+                    
+                    // Set dimensions for fabric canvas
+                    fabricCanvas.setWidth(viewport.width);
+                    fabricCanvas.setHeight(viewport.height);
+                    
+                    // Position canvases
+                    editCanvas.style.width = viewport.width + 'px';
+                    editCanvas.style.height = viewport.height + 'px';
+                    
+                    // Render PDF content
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
+                    
+                    // Load any existing edits for this page
+                    if (pageEdits[pageNumber]) {
+                        fabricCanvas.loadFromJSON(pageEdits[pageNumber], () => {
+                            fabricCanvas.renderAll();
+                        });
+                    } else {
+                        fabricCanvas.clear();
+                    }
+                    
+                    fabricCanvas.renderAll();
+                } catch (error) {
+                    console.error('Error rendering page:', error);
+                    alert('Error rendering PDF page');
+                }
+            }
+
+            // Navigation Controls
+            document.getElementById('prevPage').addEventListener('click', async () => {
+                if (currentPage > 1) {
+                    savePageEdits(currentPage);
+                    currentPage--;
+                    await renderPage(currentPage);
+                    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                }
+            });
+
+            document.getElementById('nextPage').addEventListener('click', async () => {
+                if (currentPage < totalPages) {
+                    savePageEdits(currentPage);
+                    currentPage++;
+                    await renderPage(currentPage);
+                    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                }
+            });
+
+            // Zoom Control
+            document.getElementById('zoomLevel').addEventListener('change', async (e) => {
+                zoomLevel = parseFloat(e.target.value);
+                if (currentPDF) {
+                    await renderPage(currentPage, zoomLevel);
+                }
+            });
+
+            // Text Tool
+            document.getElementById('addText').addEventListener('click', () => {
+                if (!currentPDF) {
+                    alert('Please open a PDF file first');
+                    return;
+                }
+
+                const text = new fabric.IText('Double click to edit text', {
+                    left: 100,
+                    top: 100,
+                    fontSize: 16,
+                    fontFamily: 'Arial',
+                    fill: '#000000',
+                    opacity: 1
+                });
+
+                fabricCanvas.add(text);
+                fabricCanvas.setActiveObject(text);
+                text.enterEditing();
+                updatePropertiesPanel(text);
+            });
+
+            // Function to update properties panel
+            function updatePropertiesPanel(activeObject) {
+                if (!activeObject) return;
+
+                // Hide all panels first
+                document.getElementById('textProperties').style.display = 'none';
+                document.getElementById('imageProperties').style.display = 'none';
+                document.getElementById('shapeProperties').style.display = 'none';
+
+                // Show and update appropriate panel
+                if (activeObject.type === 'i-text' || activeObject.type === 'textbox') {
+                    document.getElementById('textProperties').style.display = 'block';
+                    document.getElementById('fontSize').value = activeObject.fontSize || 16;
+                    document.getElementById('fontFamily').value = activeObject.fontFamily || 'Arial';
+                    document.getElementById('textColor').value = activeObject.fill || '#000000';
+                    document.getElementById('textOpacity').value = activeObject.opacity || 1;
+                    document.getElementById('lineHeight').value = activeObject.lineHeight || 1.2;
+                    document.getElementById('charSpacing').value = activeObject.charSpacing || 0;
+                    document.getElementById('boldText').classList.toggle('active', activeObject.fontWeight === 'bold');
+                    document.getElementById('italicText').classList.toggle('active', activeObject.fontStyle === 'italic');
+                    document.getElementById('underlineText').classList.toggle('active', activeObject.underline);
+                } else if (activeObject.type === 'image') {
+                    document.getElementById('imageProperties').style.display = 'block';
+                } else {
+                    document.getElementById('shapeProperties').style.display = 'block';
+                }
+            }
+
+            // Event handlers for object selection and modification
+            fabricCanvas.on('selection:created selection:updated object:modified text:changed', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject) {
+                    updatePropertiesPanel(activeObject);
+                }
+            });
+
+            // Handle text editing events
+            fabricCanvas.on('text:editing:entered', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    updatePropertiesPanel(activeObject);
+                }
+            });
+
+            // Handle double-click on text objects
+            fabricCanvas.on('mouse:dblclick', function(e) {
+                const activeObject = e.target;
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.enterEditing();
+                    updatePropertiesPanel(activeObject);
+                }
+            });
+
+            // Handle deselection
+            fabricCanvas.on('selection:cleared', function() {
+                document.getElementById('textProperties').style.display = 'none';
+                document.getElementById('imageProperties').style.display = 'none';
+                document.getElementById('shapeProperties').style.display = 'none';
+            });
+
+            // Image Tool with proper error handling and size constraints
+            document.getElementById('addImage').addEventListener('click', () => {
+                if (!currentPDF) {
+                    alert('Please open a PDF file first');
+                    return;
+                }
+
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Check file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('Image size should be less than 5MB');
+                            return;
+                        }
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                            // Create an image element to check dimensions
+                            const img = new Image();
+                            img.onload = () => {
+                                // Check image dimensions
+                                if (img.width > 4000 || img.height > 4000) {
+                                    alert('Image dimensions should be less than 4000x4000 pixels');
+                                    return;
+                                }
+
+                                fabric.Image.fromURL(event.target.result, (fabricImg) => {
+                                const scale = Math.min(
+                                        (fabricCanvas.getWidth() / 3) / fabricImg.width,
+                                        (fabricCanvas.getHeight() / 3) / fabricImg.height
+                                );
+                                    fabricImg.scale(scale);
+                                
+                                    fabricImg.set({
+                                    left: fabricCanvas.getWidth() / 4,
+                                    top: fabricCanvas.getHeight() / 4,
+                                    selectable: true,
+                                    cornerSize: 8,
+                                    cornerStyle: 'circle',
+                                    transparentCorners: false,
+                                    cornerColor: '#00a0f5',
+                                    borderColor: '#00a0f5',
+                                        borderScaleFactor: 2,
+                                        padding: 5
+                                });
+                                
+                                    fabricCanvas.add(fabricImg);
+                                    fabricCanvas.setActiveObject(fabricImg);
+                            showProperties('imageProperties');
+                                fabricCanvas.renderAll();
+
+                                    // Add image property event listeners
+                                    document.getElementById('imageOpacity').value = 1;
+                                    document.getElementById('imageRotation').value = 0;
+                        });
+                            };
+                            img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            });
+
+            // Shape Tool with improved shape creation and properties
+            document.getElementById('addShape').addEventListener('click', () => {
+                if (!currentPDF) {
+                    alert('Please open a PDF file first');
+                    return;
+                }
+
+                // Get the position of the Add Shape button
+                const addShapeButton = document.getElementById('addShape');
+                const buttonRect = addShapeButton.getBoundingClientRect();
+
+                const modal = document.createElement('div');
+                modal.className = 'shape-modal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: ${buttonRect.top}px;
+                    left: ${buttonRect.right + 10}px;
+                    transform: translateY(-50%);
+                    background: var(--card-bg);
+                    padding: 25px;
+                    border-radius: 12px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    z-index: 1000;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                `;
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes modalSlideIn {
+                        from { opacity: 0; transform: translateX(-20px) translateY(-50%); }
+                        to { opacity: 1; transform: translateX(0) translateY(-50%); }
+                    }
+                    .shape-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 15px;
+                        margin: 20px 0;
+                    }
+                    .shape-item {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 15px 10px;
+                        border: 2px solid var(--border-color);
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        background: white;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .shape-item:hover {
+                        border-color: var(--primary-color);
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+                    }
+                    .shape-item::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        width: 0;
+                        height: 0;
+                        background: var(--primary-color);
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%);
+                        opacity: 0;
+                        transition: all 0.3s ease;
+                    }
+                    .shape-item:hover::before {
+                        width: 120%;
+                        height: 120%;
+                        opacity: 0.1;
+                    }
+                    .shape-item.active {
+                        background: var(--primary-color);
+                        border-color: var(--primary-color);
+                        color: white;
+                    }
+                    .shape-icon {
+                        font-size: 24px;
+                        height: 40px;
+                        width: 40px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: transform 0.3s ease;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .shape-item:hover .shape-icon {
+                        transform: scale(1.2);
+                    }
+                    .shape-label {
+                        font-size: 14px;
+                        font-weight: 500;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .shape-modal-header {
+                        text-align: center;
+                        margin-bottom: 20px;
+                        padding-bottom: 15px;
+                        border-bottom: 2px solid var(--border-color);
+                        color: var(--text-color);
+                        position: relative;
+                    }
+                    .shape-modal-header::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -2px;
+                        left: 0;
+                        width: 50px;
+                        height: 2px;
+                        background: var(--primary-color);
+                        animation: headerLine 0.3s ease forwards;
+                    }
+                    @keyframes headerLine {
+                        from { width: 0; }
+                        to { width: 50px; }
+                    }
+                    .shape-modal-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 999;
+                        animation: overlayFadeIn 0.3s ease;
+                        backdrop-filter: blur(2px);
+                    }
+                    @keyframes overlayFadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                const overlay = document.createElement('div');
+                overlay.className = 'shape-modal-overlay';
+                overlay.onclick = () => {
+                    modal.remove();
+                    overlay.remove();
+                };
+
+                modal.innerHTML = `
+                    <div class="shape-modal-header">
+                        <h3 style="margin: 0; font-size: 1.2rem;">Select a Shape</h3>
+                    </div>
+                    <div class="shape-grid">
+                        <div class="shape-item" data-shape="rectangle">
+                            <div class="shape-icon">
+                                <i class="fas fa-square"></i>
+                            </div>
+                            <span class="shape-label">Rectangle</span>
+                        </div>
+                        <div class="shape-item" data-shape="circle">
+                            <div class="shape-icon">
+                                <i class="fas fa-circle"></i>
+                            </div>
+                            <span class="shape-label">Circle</span>
+                        </div>
+                        <div class="shape-item" data-shape="triangle">
+                            <div class="shape-icon">
+                                <i class="fas fa-play" style="transform: rotate(90deg);"></i>
+                            </div>
+                            <span class="shape-label">Triangle</span>
+                        </div>
+                        <div class="shape-item" data-shape="star">
+                            <div class="shape-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="shape-label">Star</span>
+                        </div>
+                        <div class="shape-item" data-shape="hexagon">
+                            <div class="shape-icon">
+                                <i class="fas fa-hexagon"></i>
+                            </div>
+                            <span class="shape-label">Hexagon</span>
+                        </div>
+                        <div class="shape-item" data-shape="arrow">
+                            <div class="shape-icon">
+                                <i class="fas fa-long-arrow-alt-right"></i>
+                            </div>
+                            <span class="shape-label">Arrow</span>
+                        </div>
+                        <div class="shape-item" data-shape="diamond">
+                            <div class="shape-icon">
+                                <i class="fas fa-diamond"></i>
+                            </div>
+                            <span class="shape-label">Diamond</span>
+                        </div>
+                        <div class="shape-item" data-shape="heart">
+                            <div class="shape-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <span class="shape-label">Heart</span>
+                        </div>
+                        <div class="shape-item" data-shape="cloud">
+                            <div class="shape-icon">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                            <span class="shape-label">Cloud</span>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(overlay);
+                document.body.appendChild(modal);
+
+                // Adjust position if modal goes off screen
+                const modalRect = modal.getBoundingClientRect();
+                if (modalRect.right > window.innerWidth) {
+                    modal.style.left = `${buttonRect.left - modalRect.width - 10}px`;
+                    modal.style.animation = 'modalSlideInReverse 0.3s ease';
+                    const reverseAnimation = document.createElement('style');
+                    reverseAnimation.textContent = `
+                        @keyframes modalSlideInReverse {
+                            from { opacity: 0; transform: translateX(20px) translateY(-50%); }
+                            to { opacity: 1; transform: translateX(0) translateY(-50%); }
+                        }
+                    `;
+                    document.head.appendChild(reverseAnimation);
+                }
+
+                // Add click event listeners to shape items
+                modal.querySelectorAll('.shape-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const shapeType = this.dataset.shape;
+                        addShape(shapeType);
+                        modal.remove();
+                        overlay.remove();
+                    });
+
+                    // Add hover effect
+                    item.addEventListener('mouseenter', function() {
+                        this.classList.add('active');
+                    });
+                    item.addEventListener('mouseleave', function() {
+                        this.classList.remove('active');
+                    });
+                });
+            });
+
+                const addShape = (type) => {
+                    let shape;
+                    const commonProps = {
+                        left: fabricCanvas.getWidth() / 4,
+                        top: fabricCanvas.getHeight() / 4,
+                    fill: document.getElementById('shapeFillColor').value || '#ffffff',
+                    stroke: document.getElementById('shapeStrokeColor').value || '#000000',
+                    strokeWidth: parseInt(document.getElementById('shapeStrokeWidth').value) || 1,
+                        selectable: true,
+                        cornerSize: 8,
+                        cornerStyle: 'circle',
+                        transparentCorners: false,
+                        cornerColor: '#00a0f5',
+                        borderColor: '#00a0f5',
+                    borderScaleFactor: 2,
+                    padding: 5
+                    };
+
+                    switch(type) {
+                        case 'rectangle':
+                            shape = new fabric.Rect({
+                                ...commonProps,
+                                width: 100,
+                            height: 60
+                            });
+                            break;
+                        case 'circle':
+                            shape = new fabric.Circle({
+                                ...commonProps,
+                                radius: 50
+                            });
+                            break;
+                        case 'triangle':
+                            shape = new fabric.Triangle({
+                                ...commonProps,
+                                width: 100,
+                                height: 100
+                            });
+                            break;
+                    case 'star':
+                        const starPoints = [];
+                        for (let i = 0; i < 10; i++) {
+                            const radius = i % 2 === 0 ? 50 : 25;
+                            const angle = (i * Math.PI) / 5;
+                            starPoints.push({
+                                x: radius * Math.cos(angle),
+                                y: radius * Math.sin(angle)
+                            });
+                        }
+                        shape = new fabric.Polygon(starPoints, commonProps);
+                        break;
+                    case 'hexagon':
+                        const hexPoints = [];
+                        for (let i = 0; i < 6; i++) {
+                            const angle = (i * 2 * Math.PI) / 6;
+                            hexPoints.push({
+                                x: 50 * Math.cos(angle),
+                                y: 50 * Math.sin(angle)
+                            });
+                        }
+                        shape = new fabric.Polygon(hexPoints, commonProps);
+                        break;
+                    case 'arrow':
+                        const arrowPoints = [
+                            { x: 0, y: 20 },
+                            { x: 100, y: 20 },
+                            { x: 100, y: 0 },
+                            { x: 140, y: 30 },
+                            { x: 100, y: 60 },
+                            { x: 100, y: 40 },
+                            { x: 0, y: 40 }
+                        ];
+                        shape = new fabric.Polygon(arrowPoints, commonProps);
+                        break;
+                    case 'diamond':
+                        const diamondPoints = [
+                            { x: 50, y: 0 },
+                            { x: 100, y: 50 },
+                            { x: 50, y: 100 },
+                            { x: 0, y: 50 }
+                        ];
+                        shape = new fabric.Polygon(diamondPoints, commonProps);
+                        break;
+                    case 'heart':
+                        const heartPath = 'M 50 100 C 100 25 150 25 100 100 L 50 150 L 0 100 C -50 25 0 25 50 100 Z';
+                        shape = new fabric.Path(heartPath, {
+                            ...commonProps,
+                            scaleX: 0.5,
+                            scaleY: 0.5
+                        });
+                        break;
+                    case 'cloud':
+                        const cloudPath = 'M 25,60 a 20,20 0 0,1 0,-40 h 50 a 20,20 0 0,1 0,40 z';
+                        shape = new fabric.Path(cloudPath, {
+                            ...commonProps,
+                            scaleX: 1.5,
+                            scaleY: 1.5
+                            });
+                            break;
+                    }
+
+                if (shape) {
+                    fabricCanvas.add(shape);
+                    fabricCanvas.setActiveObject(shape);
+                showProperties('shapeProperties');
+                    fabricCanvas.requestRenderAll();
+                }
+            };
+
+            // Signature Tool with improved signature handling
+            document.getElementById('addSignature').addEventListener('click', () => {
+                if (!currentPDF) {
+                    alert('Please open a PDF file first');
+                    return;
+                }
+
+                const signatureModal = document.getElementById('signatureModal');
+                signatureModal.style.display = 'flex';
+                
+                // Reset signature pad
+                signaturePad.clear();
+                
+                // Update signature pad size
+                const canvas = document.getElementById('signaturePad');
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear();
+            });
+
+            // Improved signature saving with proper scaling
+            document.getElementById('saveSignature').addEventListener('click', () => {
+                if (signaturePad.isEmpty()) {
+                    alert('Please provide a signature first');
+                    return;
+                }
+
+                const signatureData = signaturePad.toDataURL();
+                fabric.Image.fromURL(signatureData, (img) => {
+                    // Calculate scale to make signature a reasonable size
+                    const maxWidth = fabricCanvas.getWidth() / 3;
+                    const maxHeight = fabricCanvas.getHeight() / 4;
+                    const scale = Math.min(
+                        maxWidth / img.width,
+                        maxHeight / img.height
+                    );
+                    
+                    img.set({
+                        left: fabricCanvas.getWidth() / 4,
+                        top: fabricCanvas.getHeight() / 4,
+                        scaleX: scale,
+                        scaleY: scale,
+                        selectable: true,
+                        cornerSize: 8,
+                        cornerStyle: 'circle',
+                        transparentCorners: false,
+                        cornerColor: '#00a0f5',
+                        borderColor: '#00a0f5',
+                        borderScaleFactor: 2,
+                        padding: 5
+                    });
+                    
+                    fabricCanvas.add(img);
+                    fabricCanvas.setActiveObject(img);
+                    fabricCanvas.renderAll();
+                });
+
+                document.getElementById('signatureModal').style.display = 'none';
+                signaturePad.clear();
+            });
+
+            // Property Panel Controls
+            document.getElementById('imageOpacity').addEventListener('input', (e) => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    activeObject.set('opacity', parseFloat(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('imageRotation').addEventListener('input', (e) => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    activeObject.set('angle', parseInt(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('shapeFillColor').addEventListener('input', (e) => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    activeObject.set('fill', e.target.value);
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('shapeStrokeColor').addEventListener('input', (e) => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    activeObject.set('stroke', e.target.value);
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('shapeStrokeWidth').addEventListener('input', (e) => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    activeObject.set('strokeWidth', parseInt(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            // Save page edits
+            function savePageEdits(pageNum) {
+                pageEdits[pageNum] = fabricCanvas.toJSON();
+            }
+
+            // Enable/Disable editing tools
+            function enableEditingTools() {
+                document.querySelectorAll('.tool-button').forEach(button => {
+                    button.disabled = false;
+                });
+            }
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key.toLowerCase()) {
+                        case 'z':
+                            if (e.shiftKey) {
+                                fabricCanvas.redo();
+                            } else {
+                                fabricCanvas.undo();
+                            }
+                            e.preventDefault();
+                            break;
+                        case 's':
+                            document.getElementById('savePDF').click();
+                            e.preventDefault();
+                            break;
+                        case 'o':
+                            document.getElementById('openFile').click();
+                            e.preventDefault();
+                            break;
+                    }
+                }
+            });
+
+            // Add delete functionality
+            document.getElementById('deleteBtn').addEventListener('click', () => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject) {
+                    fabricCanvas.remove(activeObject);
+                    fabricCanvas.requestRenderAll();
+                    savePageEdits(currentPage);
+                }
+            });
+
+            // Add keyboard delete support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    const activeObject = fabricCanvas.getActiveObject();
+                    if (activeObject && !activeObject.isEditing) {
+                        fabricCanvas.remove(activeObject);
+                        fabricCanvas.requestRenderAll();
+                        savePageEdits(currentPage);
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            // Improve object selection and interaction
+            fabricCanvas.on('mouse:down', function(options) {
+                if (options.target) {
+                    options.target.set({
+                        hasControls: true,
+                        hasBorders: true,
+                        selectable: true
+                    });
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            // Make sure new objects are always selectable and interactive
+            fabricCanvas.on('object:added', function(e) {
+                e.target.set({
+                    selectable: true,
+                    hasControls: true,
+                    hasBorders: true,
+                    lockUniScaling: false,
+                    cornerSize: 8,
+                    cornerStyle: 'circle',
+                    transparentCorners: false,
+                    cornerColor: '#00a0f5',
+                    borderColor: '#00a0f5',
+                    borderScaleFactor: 2
+                });
+                fabricCanvas.setActiveObject(e.target);
+                fabricCanvas.requestRenderAll();
+            });
+
+            // Save edits when objects are modified
+            fabricCanvas.on('object:modified', function() {
+                savePageEdits(currentPage);
+            });
+
+            // File Operations
+            document.getElementById('openFile').addEventListener('click', async () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.pdf';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        try {
+                            // Show loading indicator
+                            const loadingDiv = document.createElement('div');
+                            loadingDiv.className = 'spinner';
+                            document.querySelector('.pdf-container').appendChild(loadingDiv);
+
+                            const arrayBuffer = await file.arrayBuffer();
+                            await loadPDF(arrayBuffer);
+                            
+                            // Store the original PDF for later use
+                            window.originalPDF = arrayBuffer;
+                            window.currentFileName = file.name;
+
+                            // Remove loading indicator
+                            loadingDiv.remove();
+                        } catch (error) {
+                            console.error('Error reading file:', error);
+                            alert('Error reading PDF file: ' + error.message);
+                        }
+                    }
+                };
+                input.click();
+            });
+
+            // Save PDF with modifications
+            document.getElementById('savePDF').addEventListener('click', async () => {
+                if (!currentPDF || !window.originalPDF) {
+                    alert('Please open a PDF file first');
+                    return;
+                }
+
+                try {
+                    // Show loading indicator
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'spinner';
+                    document.querySelector('.pdf-container').appendChild(loadingDiv);
+
+                    // Save current page edits before proceeding
+                    savePageEdits(currentPage);
+
+                    // Create a copy of the original PDF ArrayBuffer
+                    const pdfBytes = new Uint8Array(window.originalPDF);
+                    
+                    // Load the PDF document using PDF-Lib
+                    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+                    
+                    // Process each page with edits sequentially
+                    for (let pageNum in pageEdits) {
+                        // Create a temporary canvas for this page
+                        const tempCanvas = document.createElement('canvas');
+                        const fabricCanvasTemp = new fabric.Canvas(tempCanvas);
+                        
+                        // Set canvas dimensions to match the PDF page
+                        const pdfPage = pdfDoc.getPage(parseInt(pageNum) - 1);
+                        const { width, height } = pdfPage.getSize();
+                        fabricCanvasTemp.setDimensions({ width, height });
+
+                        // Wait for the edits to load
+                        await new Promise(resolve => {
+                            fabricCanvasTemp.loadFromJSON(pageEdits[pageNum], async () => {
+                                try {
+                                    // Render the canvas
+                                    fabricCanvasTemp.renderAll();
+                                    
+                                    // Convert to PNG with proper dimensions
+                                    const pngData = fabricCanvasTemp.toDataURL({
+                                        format: 'png',
+                                        width: width,
+                                        height: height
+                                    });
+
+                                    // Remove data URL prefix to get just the base64 data
+                                    const pngBase64 = pngData.replace(/^data:image\/png;base64,/, '');
+                                    
+                                    // Embed the PNG into the PDF
+                                    const pngImage = await pdfDoc.embedPng(pngBase64);
+                                    
+                                    // Draw on the PDF page
+                                    pdfPage.drawImage(pngImage, {
+                                        x: 0,
+                                        y: 0,
+                                        width: width,
+                                        height: height
+                                    });
+
+                                    // Clean up
+                                    fabricCanvasTemp.dispose();
+                                    resolve();
+                                } catch (err) {
+                                    console.error('Error processing page:', err);
+                                    resolve(); // Continue with other pages even if one fails
+                                }
+                            });
+                        });
+                    }
+
+                    // Save the modified PDF
+                    const modifiedPdfBytes = await pdfDoc.save();
+                    
+                    // Create download link
+                    const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = url;
+                    downloadLink.download = 'edited_' + (window.currentFileName || 'document.pdf');
+                    
+                    // Trigger download
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // Clean up
+                    URL.revokeObjectURL(url);
+                    loadingDiv.remove();
+
+                } catch (error) {
+                    console.error('Error saving PDF:', error);
+                    alert('Error saving PDF file: ' + error.message);
+                    // Clean up loading indicator if there was an error
+                    loadingDiv?.remove();
+                }
+            });
+
+            // Initialize other tools (OCR, Merge, Split, etc.)
+            // These will be implemented in subsequent updates
+
+            // Add case control event listeners
+            document.getElementById('upperCase').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    activeObject.set('text', activeObject.text.toUpperCase());
+                    this.classList.add('clicked');
+                    setTimeout(() => this.classList.remove('clicked'), 300);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('lowerCase').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    activeObject.set('text', activeObject.text.toLowerCase());
+                    this.classList.add('clicked');
+                    setTimeout(() => this.classList.remove('clicked'), 300);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('properCase').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    const properText = activeObject.text.toLowerCase().replace(/(^|\s)\S/g, letter => letter.toUpperCase());
+                    activeObject.set('text', properText);
+                    this.classList.add('clicked');
+                    setTimeout(() => this.classList.remove('clicked'), 300);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            // Text Shadow Controls
+            document.getElementById('addShadow').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    const color = document.getElementById('shadowColor').value;
+                    const offsetX = parseInt(document.getElementById('shadowOffsetX').value);
+                    const offsetY = parseInt(document.getElementById('shadowOffsetY').value);
+                    const blur = parseInt(document.getElementById('shadowBlur').value);
+                    
+                    activeObject.set('shadow', new fabric.Shadow({
+                        color: color,
+                        offsetX: offsetX,
+                        offsetY: offsetY,
+                        blur: blur
+                    }));
+                    
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('removeShadow').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    activeObject.set('shadow', null);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            ['shadowOffsetX', 'shadowOffsetY', 'shadowBlur'].forEach(id => {
+                document.getElementById(id).addEventListener('input', function() {
+                    const activeObject = fabricCanvas.getActiveObject();
+                    if (activeObject && activeObject.type === 'i-text' && activeObject.shadow) {
+                        const shadow = activeObject.shadow;
+                        shadow.color = document.getElementById('shadowColor').value;
+                        shadow.offsetX = parseInt(document.getElementById('shadowOffsetX').value);
+                        shadow.offsetY = parseInt(document.getElementById('shadowOffsetY').value);
+                        shadow.blur = parseInt(document.getElementById('shadowBlur').value);
+                        
+                        activeObject.set('shadow', new fabric.Shadow(shadow));
+                        fabricCanvas.requestRenderAll();
+                    }
+                });
+            });
+
+            // Add Clear All functionality
+            document.getElementById('clearAllEffects').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'i-text') {
+                    // Reset text styling
+                    activeObject.set({
+                        backgroundColor: 'transparent',
+                        stroke: '',
+                        strokeWidth: 0,
+                        shadow: null,
+                        fontWeight: 'normal',
+                        fontStyle: 'normal',
+                        underline: false,
+                        lineHeight: 1.2,
+                        charSpacing: 0
+                    });
+
+                    // Reset UI controls
+                    document.getElementById('textBgToggle').checked = false;
+                    document.getElementById('strokeWidth').value = 0;
+                    document.getElementById('strokeWidth').nextElementSibling.textContent = '0px';
+                    document.getElementById('lineHeight').value = 1.2;
+                    document.getElementById('lineHeight').nextElementSibling.textContent = '1.2';
+                    document.getElementById('charSpacing').value = 0;
+                    document.getElementById('charSpacing').nextElementSibling.textContent = '0px';
+                    
+                    // Reset shadow controls
+                    document.getElementById('shadowOffsetX').value = 0;
+                    document.getElementById('shadowOffsetX').nextElementSibling.textContent = '0px';
+                    document.getElementById('shadowOffsetY').value = 0;
+                    document.getElementById('shadowOffsetY').nextElementSibling.textContent = '0px';
+                    document.getElementById('shadowBlur').value = 0;
+                    document.getElementById('shadowBlur').nextElementSibling.textContent = '0px';
+
+                    // Reset style buttons
+                    document.querySelectorAll('.btn-style').forEach(btn => btn.classList.remove('active'));
+                    document.getElementById('alignLeft').classList.add('active');
+
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            // Add this inside the DOMContentLoaded event listener, after the existing image property controls
+            // Enhanced Image Property Controls
+            document.getElementById('imageOpacity').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseFloat(e.target.value);
+                    activeObject.set('opacity', value);
+                    this.nextElementSibling.textContent = Math.round(value * 100) + '%';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageRotation').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseInt(e.target.value);
+                    activeObject.set('angle', value);
+                    this.nextElementSibling.textContent = value + '°';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageBrightness').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseFloat(e.target.value);
+                    activeObject.filters[0] = new fabric.Image.filters.Brightness({ brightness: value });
+                    activeObject.applyFilters();
+                    this.nextElementSibling.textContent = value.toFixed(1);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageContrast').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseFloat(e.target.value);
+                    activeObject.filters[1] = new fabric.Image.filters.Contrast({ contrast: value });
+                    activeObject.applyFilters();
+                    this.nextElementSibling.textContent = value.toFixed(1);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageSaturation').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseFloat(e.target.value);
+                    activeObject.filters[2] = new fabric.Image.filters.Saturation({ saturation: value });
+                    activeObject.applyFilters();
+                    this.nextElementSibling.textContent = value.toFixed(1);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageBlur').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseFloat(e.target.value);
+                    activeObject.filters[3] = new fabric.Image.filters.Blur({ blur: value });
+                    activeObject.applyFilters();
+                    this.nextElementSibling.textContent = value.toFixed(1) + 'px';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageBorderColor').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    activeObject.set('stroke', e.target.value);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageBorderWidth').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseInt(e.target.value);
+                    activeObject.set('strokeWidth', value);
+                    this.nextElementSibling.textContent = value + 'px';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('imageBorderStyle').addEventListener('change', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const style = e.target.value;
+                    switch(style) {
+                        case 'dashed':
+                            activeObject.set('strokeDashArray', [10, 5]);
+                            break;
+                        case 'dotted':
+                            activeObject.set('strokeDashArray', [2, 2]);
+                            break;
+                        default:
+                            activeObject.set('strokeDashArray', null);
+                    }
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('resetImageEffects').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    // Reset all image properties
+                    activeObject.set({
+                        opacity: 1,
+                        angle: 0,
+                        stroke: '',
+                        strokeWidth: 0,
+                        strokeDashArray: null,
+                        filters: []
+                    });
+                    activeObject.applyFilters();
+
+                    // Reset UI controls
+                    document.getElementById('imageOpacity').value = 1;
+                    document.getElementById('imageOpacity').nextElementSibling.textContent = '100%';
+                    document.getElementById('imageRotation').value = 0;
+                    document.getElementById('imageRotation').nextElementSibling.textContent = '0°';
+                    document.getElementById('imageBrightness').value = 0;
+                    document.getElementById('imageBrightness').nextElementSibling.textContent = '0';
+                    document.getElementById('imageContrast').value = 0;
+                    document.getElementById('imageContrast').nextElementSibling.textContent = '0';
+                    document.getElementById('imageSaturation').value = 1;
+                    document.getElementById('imageSaturation').nextElementSibling.textContent = '1';
+                    document.getElementById('imageBlur').value = 0;
+                    document.getElementById('imageBlur').nextElementSibling.textContent = '0px';
+                    document.getElementById('imageBorderWidth').value = 0;
+                    document.getElementById('imageBorderWidth').nextElementSibling.textContent = '0px';
+                    document.getElementById('imageBorderStyle').value = 'solid';
+
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            // Shape Property Controls
+            document.getElementById('shapeFillColor').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    activeObject.set('fill', e.target.value);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeFillOpacity').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    const value = parseFloat(e.target.value);
+                    activeObject.set('opacity', value);
+                    this.nextElementSibling.textContent = Math.round(value * 100) + '%';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeStrokeColor').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    activeObject.set('stroke', e.target.value);
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeStrokeWidth').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    const value = parseInt(e.target.value);
+                    activeObject.set('strokeWidth', value);
+                    this.nextElementSibling.textContent = value + 'px';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeStrokeStyle').addEventListener('change', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    switch(e.target.value) {
+                        case 'dashed':
+                            activeObject.set('strokeDashArray', [10, 5]);
+                            break;
+                        case 'dotted':
+                            activeObject.set('strokeDashArray', [2, 2]);
+                            break;
+                        default:
+                            activeObject.set('strokeDashArray', null);
+                    }
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeRotation').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    const value = parseInt(e.target.value);
+                    activeObject.set('angle', value);
+                    this.nextElementSibling.textContent = value + '°';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeScale').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    const value = parseFloat(e.target.value);
+                    activeObject.scale(value);
+                    this.nextElementSibling.textContent = Math.round(value * 100) + '%';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeSkewX').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    const value = parseInt(e.target.value);
+                    activeObject.set('skewX', value);
+                    this.nextElementSibling.textContent = value + '°';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            document.getElementById('shapeSkewY').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    const value = parseInt(e.target.value);
+                    activeObject.set('skewY', value);
+                    this.nextElementSibling.textContent = value + '°';
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            // Shape Shadow Controls
+            document.getElementById('shapeShadowColor').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    updateShapeShadow(activeObject);
+                }
+            });
+
+            ['shapeShadowBlur', 'shapeShadowOffsetX', 'shapeShadowOffsetY'].forEach(id => {
+                document.getElementById(id).addEventListener('input', function(e) {
+                    const activeObject = fabricCanvas.getActiveObject();
+                    if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                        const value = parseInt(e.target.value);
+                        this.nextElementSibling.textContent = value + 'px';
+                        updateShapeShadow(activeObject);
+                    }
+                });
+            });
+
+            function updateShapeShadow(object) {
+                const color = document.getElementById('shapeShadowColor').value;
+                const blur = parseInt(document.getElementById('shapeShadowBlur').value);
+                const offsetX = parseInt(document.getElementById('shapeShadowOffsetX').value);
+                const offsetY = parseInt(document.getElementById('shapeShadowOffsetY').value);
+
+                object.set('shadow', new fabric.Shadow({
+                    color: color,
+                    blur: blur,
+                    offsetX: offsetX,
+                    offsetY: offsetY
+                }));
+                fabricCanvas.requestRenderAll();
+            }
+
+            // Reset Shape Effects
+            document.getElementById('resetShapeEffects').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type !== 'i-text' && activeObject.type !== 'image')) {
+                    // Reset basic properties
+                    activeObject.set({
+                        fill: '#ffffff',
+                        opacity: 1,
+                        stroke: '#000000',
+                        strokeWidth: 1,
+                        strokeDashArray: null,
+                        angle: 0,
+                        scaleX: 1,
+                        scaleY: 1,
+                        skewX: 0,
+                        skewY: 0,
+                        shadow: null
+                    });
+
+                    // Reset UI controls
+                    document.getElementById('shapeFillColor').value = '#ffffff';
+                    document.getElementById('shapeFillOpacity').value = 1;
+                    document.getElementById('shapeFillOpacity').nextElementSibling.textContent = '100%';
+                    document.getElementById('shapeStrokeColor').value = '#000000';
+                    document.getElementById('shapeStrokeWidth').value = 1;
+                    document.getElementById('shapeStrokeWidth').nextElementSibling.textContent = '1px';
+                    document.getElementById('shapeStrokeStyle').value = 'solid';
+                    document.getElementById('shapeRotation').value = 0;
+                    document.getElementById('shapeRotation').nextElementSibling.textContent = '0°';
+                    document.getElementById('shapeScale').value = 1;
+                    document.getElementById('shapeScale').nextElementSibling.textContent = '100%';
+                    document.getElementById('shapeSkewX').value = 0;
+                    document.getElementById('shapeSkewX').nextElementSibling.textContent = '0°';
+                    document.getElementById('shapeSkewY').value = 0;
+                    document.getElementById('shapeSkewY').nextElementSibling.textContent = '0°';
+                    document.getElementById('shapeShadowBlur').value = 0;
+                    document.getElementById('shapeShadowBlur').nextElementSibling.textContent = '0px';
+                    document.getElementById('shapeShadowOffsetX').value = 0;
+                    document.getElementById('shapeShadowOffsetX').nextElementSibling.textContent = '0px';
+                    document.getElementById('shapeShadowOffsetY').value = 0;
+                    document.getElementById('shapeShadowOffsetY').nextElementSibling.textContent = '0px';
+
+                    fabricCanvas.requestRenderAll();
+                }
+            });
+
+            // Update shape controls when selecting a shape
+            fabricCanvas.on('selection:created', function(e) {
+                if (e.target && (e.target.type !== 'i-text' && e.target.type !== 'image')) {
+                    // Update basic properties
+                    document.getElementById('shapeFillColor').value = e.target.fill;
+                    document.getElementById('shapeFillOpacity').value = e.target.opacity;
+                    document.getElementById('shapeFillOpacity').nextElementSibling.textContent = Math.round(e.target.opacity * 100) + '%';
+                    document.getElementById('shapeStrokeColor').value = e.target.stroke || '#000000';
+                    document.getElementById('shapeStrokeWidth').value = e.target.strokeWidth || 1;
+                    document.getElementById('shapeStrokeWidth').nextElementSibling.textContent = (e.target.strokeWidth || 1) + 'px';
+                    
+                    // Update transform properties
+                    document.getElementById('shapeRotation').value = e.target.angle || 0;
+                    document.getElementById('shapeRotation').nextElementSibling.textContent = (e.target.angle || 0) + '°';
+                    document.getElementById('shapeScale').value = e.target.scaleX || 1;
+                    document.getElementById('shapeScale').nextElementSibling.textContent = Math.round((e.target.scaleX || 1) * 100) + '%';
+                    document.getElementById('shapeSkewX').value = e.target.skewX || 0;
+                    document.getElementById('shapeSkewX').nextElementSibling.textContent = (e.target.skewX || 0) + '°';
+                    document.getElementById('shapeSkewY').value = e.target.skewY || 0;
+                    document.getElementById('shapeSkewY').nextElementSibling.textContent = (e.target.skewY || 0) + '°';
+
+                    // Update shadow properties if exists
+                    if (e.target.shadow) {
+                        document.getElementById('shapeShadowColor').value = e.target.shadow.color;
+                        document.getElementById('shapeShadowBlur').value = e.target.shadow.blur;
+                        document.getElementById('shapeShadowBlur').nextElementSibling.textContent = e.target.shadow.blur + 'px';
+                        document.getElementById('shapeShadowOffsetX').value = e.target.shadow.offsetX;
+                        document.getElementById('shapeShadowOffsetX').nextElementSibling.textContent = e.target.shadow.offsetX + 'px';
+                        document.getElementById('shapeShadowOffsetY').value = e.target.shadow.offsetY;
+                        document.getElementById('shapeShadowOffsetY').nextElementSibling.textContent = e.target.shadow.offsetY + 'px';
+                    }
+                }
+            });
+
+            fabricCanvas.on('selection:updated', function(e) {
+                if (e.target && (e.target.type !== 'i-text' && e.target.type !== 'image')) {
+                    // Same updates as selection:created
+                    document.getElementById('shapeFillColor').value = e.target.fill;
+                    document.getElementById('shapeFillOpacity').value = e.target.opacity;
+                    document.getElementById('shapeFillOpacity').nextElementSibling.textContent = Math.round(e.target.opacity * 100) + '%';
+                    document.getElementById('shapeStrokeColor').value = e.target.stroke || '#000000';
+                    document.getElementById('shapeStrokeWidth').value = e.target.strokeWidth || 1;
+                    document.getElementById('shapeStrokeWidth').nextElementSibling.textContent = (e.target.strokeWidth || 1) + 'px';
+                    
+                    document.getElementById('shapeRotation').value = e.target.angle || 0;
+                    document.getElementById('shapeRotation').nextElementSibling.textContent = (e.target.angle || 0) + '°';
+                    document.getElementById('shapeScale').value = e.target.scaleX || 1;
+                    document.getElementById('shapeScale').nextElementSibling.textContent = Math.round((e.target.scaleX || 1) * 100) + '%';
+                    document.getElementById('shapeSkewX').value = e.target.skewX || 0;
+                    document.getElementById('shapeSkewX').nextElementSibling.textContent = (e.target.skewX || 0) + '°';
+                    document.getElementById('shapeSkewY').value = e.target.skewY || 0;
+                    document.getElementById('shapeSkewY').nextElementSibling.textContent = (e.target.skewY || 0) + '°';
+
+                    if (e.target.shadow) {
+                        document.getElementById('shapeShadowColor').value = e.target.shadow.color;
+                        document.getElementById('shapeShadowBlur').value = e.target.shadow.blur;
+                        document.getElementById('shapeShadowBlur').nextElementSibling.textContent = e.target.shadow.blur + 'px';
+                        document.getElementById('shapeShadowOffsetX').value = e.target.shadow.offsetX;
+                        document.getElementById('shapeShadowOffsetX').nextElementSibling.textContent = e.target.shadow.offsetX + 'px';
+                        document.getElementById('shapeShadowOffsetY').value = e.target.shadow.offsetY;
+                        document.getElementById('shapeShadowOffsetY').nextElementSibling.textContent = e.target.shadow.offsetY + 'px';
+                    }
+                }
+            });
+
+            // Show appropriate properties panel based on selected object type
+            fabricCanvas.on('selection:created selection:updated object:modified text:editing:entered text:editing:exited', function(e) {
+                const activeObject = e.target;
+                if (!activeObject) return;
+
+                // Hide all property panels first
+                document.getElementById('textProperties').style.display = 'none';
+                document.getElementById('imageProperties').style.display = 'none';
+                document.getElementById('shapeProperties').style.display = 'none';
+
+                try {
+                    // Show and update appropriate panel based on object type
+                    if (activeObject.type === 'i-text' || activeObject.type === 'textbox') {
+                        document.getElementById('textProperties').style.display = 'block';
+                        // Update text properties
+                        if (document.getElementById('fontSize')) {
+                            document.getElementById('fontSize').value = activeObject.fontSize || 16;
+                        }
+                        if (document.getElementById('fontFamily')) {
+                            document.getElementById('fontFamily').value = activeObject.fontFamily || 'Arial';
+                        }
+                        if (document.getElementById('textColor')) {
+                            document.getElementById('textColor').value = activeObject.fill || '#000000';
+                        }
+                        if (document.getElementById('textOpacity')) {
+                            document.getElementById('textOpacity').value = activeObject.opacity || 1;
+                        }
+                        if (document.getElementById('lineHeight')) {
+                            document.getElementById('lineHeight').value = activeObject.lineHeight || 1.2;
+                        }
+                        if (document.getElementById('charSpacing')) {
+                            document.getElementById('charSpacing').value = activeObject.charSpacing || 0;
+                        }
+                        
+                        // Update text style buttons
+                        if (document.getElementById('boldText')) {
+                            document.getElementById('boldText').classList.toggle('active', activeObject.fontWeight === 'bold');
+                        }
+                        if (document.getElementById('italicText')) {
+                            document.getElementById('italicText').classList.toggle('active', activeObject.fontStyle === 'italic');
+                        }
+                        if (document.getElementById('underlineText')) {
+                            document.getElementById('underlineText').classList.toggle('active', activeObject.underline);
+                        }
+                    } else if (activeObject.type === 'image') {
+                        document.getElementById('imageProperties').style.display = 'block';
+                    } else {
+                        document.getElementById('shapeProperties').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error updating properties panel:', error);
+                }
+            });
+
+            // Handle deselection - hide all panels
+            fabricCanvas.on('selection:cleared', function() {
+                document.getElementById('textProperties').style.display = 'none';
+                document.getElementById('imageProperties').style.display = 'none';
+                document.getElementById('shapeProperties').style.display = 'none';
+            });
+
+            // Function to update text properties
+            function updateTextProperties(activeObject) {
+                if (!activeObject || (activeObject.type !== 'i-text' && activeObject.type !== 'textbox')) return;
+                
+                document.getElementById('textProperties').style.display = 'block';
+                document.getElementById('imageProperties').style.display = 'none';
+                document.getElementById('shapeProperties').style.display = 'none';
+
+                // Update text properties
+                document.getElementById('fontSize').value = activeObject.fontSize || 16;
+                document.getElementById('fontFamily').value = activeObject.fontFamily || 'Arial';
+                document.getElementById('textColor').value = activeObject.fill || '#000000';
+                document.getElementById('textOpacity').value = activeObject.opacity || 1;
+                document.getElementById('lineHeight').value = activeObject.lineHeight || 1.2;
+                document.getElementById('charSpacing').value = activeObject.charSpacing || 0;
+                
+                // Update text style buttons
+                document.getElementById('boldText').classList.toggle('active', activeObject.fontWeight === 'bold');
+                document.getElementById('italicText').classList.toggle('active', activeObject.fontStyle === 'italic');
+                document.getElementById('underlineText').classList.toggle('active', activeObject.underline);
+            }
+
+            // Add text editing events
+            fabricCanvas.on('text:editing:entered', function(e) {
+                updateTextProperties(e.target);
+            });
+
+            fabricCanvas.on('text:editing:exited', function(e) {
+                updateTextProperties(e.target);
+            });
+
+            fabricCanvas.on('text:changed', function(e) {
+                updateTextProperties(e.target);
+            });
+
+            fabricCanvas.on('selection:created selection:updated', function(e) {
+                const activeObject = e.target;
+                if (!activeObject) return;
+
+                if (activeObject.type === 'i-text' || activeObject.type === 'textbox') {
+                    updateTextProperties(activeObject);
+                }
+            });
+
+            // Handle double-click on text objects
+            fabricCanvas.on('mouse:dblclick', function(e) {
+                const activeObject = e.target;
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.enterEditing();
+                    updateTextProperties(activeObject);
+                }
+            });
+
+            // Add text property event listeners
+            document.getElementById('fontSize').addEventListener('change', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.set('fontSize', parseInt(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('fontFamily').addEventListener('change', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.set('fontFamily', e.target.value);
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('textColor').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.set('fill', e.target.value);
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('textOpacity').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.set('opacity', parseFloat(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('lineHeight').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.set('lineHeight', parseFloat(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('charSpacing').addEventListener('input', function(e) {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    activeObject.set('charSpacing', parseInt(e.target.value));
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('boldText').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    const newWeight = activeObject.fontWeight === 'bold' ? 'normal' : 'bold';
+                    activeObject.set('fontWeight', newWeight);
+                    this.classList.toggle('active');
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('italicText').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    const newStyle = activeObject.fontStyle === 'italic' ? 'normal' : 'italic';
+                    activeObject.set('fontStyle', newStyle);
+                    this.classList.toggle('active');
+                    fabricCanvas.renderAll();
+                }
+            });
+
+            document.getElementById('underlineText').addEventListener('click', function() {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'textbox')) {
+                    const newUnderline = !activeObject.underline;
+                    activeObject.set('underline', newUnderline);
+                    this.classList.toggle('active');
+                    fabricCanvas.renderAll();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
